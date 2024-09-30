@@ -38,6 +38,9 @@ const ClientSchema = new Schema(
         },
         type : {
             type : String ,
+        },
+        rental : {
+            type : String ,
         }
     },
     {timestamps : true}

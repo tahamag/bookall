@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useState ,useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,24 +7,34 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Loader2, AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 
 export default function RegisterForm() {
+
         const router = useRouter();
         const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        birthday:'',
-        phoneNumber:'',
-        identifiant:'',
-        adress :'',
-        password: '',
-        confirmPassword: '',
-    })
+            firstName: '',
+            lastName: '',
+            email: '',
+            birthday:'',
+            phoneNumber:'',
+            identifiant:'',
+            adress :'',
+            password: '',
+            confirmPassword: '',
+        })
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState('');
+    const { data: session , status : sessionStatus } = useSession();
+
+    useEffect(() => {
+        if (sessionStatus === "authenticated") {
+            router.replace("/Locateur");
+        }
+    }, [sessionStatus, router]);
 
 
     const handleChange = (e) => {
@@ -73,7 +83,12 @@ export default function RegisterForm() {
         const identifiant = e.target[5].value;
         const adress  = e.target[6].value;
         const password = e.target[7].value;
-        const type = "Locateur";
+        const type = "Locateur";//rental
+        //const formData = new FormData(e.currentTarget)
+       // const rental = formData.get('rental')
+        const rental = e.target['rental'].value;
+
+        alert(`Selected option: ${rental}`)
         if (validateForm()) {
             setIsLoading(true)
             setApiError('')
@@ -83,7 +98,7 @@ export default function RegisterForm() {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password,type}),
+                    body: JSON.stringify({firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password,type,rental}),
                 });
                 if (res.status === 400) {
                     console.log('Email already exists');
@@ -99,7 +114,7 @@ export default function RegisterForm() {
                 }
                 if (res.status === 200) {
                     setErrors("");
-                    router.push("/Locateur");
+                    router.push("/Locateur/Login");
                 }
             } catch (error) {
                 console.error('Error submitting form:', error)
@@ -231,6 +246,18 @@ export default function RegisterForm() {
                             />
                             {errors.confirmPassword && <p className="text-error text-xs mt-1">{errors.confirmPassword}</p>}
                         </div>
+                        <Label >Rental Type</Label>
+                        <RadioGroup defaultValue="Car" name="rental" className="flex space-x-4">
+                            {["Car", "Hotel", "Apartment"].map((option) => (
+                                <div key={option} className="flex items-center space-x-2">
+                                <RadioGroupItem value={`${option}`} id={`${option}`} />
+                                <Label htmlFor={`${option}`} className="capitalize">
+                                    {option}
+                                </Label>
+                                </div>
+                            ))}
+                        </RadioGroup>
+
                         <Button className="w-full"  disabled={isLoading}>
                         {isLoading ? (
                             <>
