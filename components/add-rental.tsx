@@ -110,7 +110,7 @@ export function AddRentalComponent() {
         description: "Your new rental has been added to the system.",
       })
       // After successful submission, redirect to a confirmation page or rental list
-      router.push('/rentals')
+      router.push('/Locateur')
     } catch (error) {
       console.error('Error submitting form:', error)
       toast({

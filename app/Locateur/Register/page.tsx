@@ -88,7 +88,6 @@ export default function RegisterForm() {
        // const rental = formData.get('rental')
         const rental = e.target['rental'].value;
 
-        alert(`Selected option: ${rental}`)
         if (validateForm()) {
             setIsLoading(true)
             setApiError('')

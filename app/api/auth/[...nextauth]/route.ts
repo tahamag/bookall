@@ -50,7 +50,7 @@ export const authOptions: any = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.clientType = user.clientType;
+        token.rental = user.rental;
       }
       return token;
     },
@@ -59,7 +59,7 @@ export const authOptions: any = {
         session.user.id = token.id;
         session.user.email = token.email;
         session.user.name = token.name;
-        session.user.clientType = token.clientType;
+        session.user.rental = token.rental;
       }
       return session;
     },
