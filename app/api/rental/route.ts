@@ -2,6 +2,7 @@ import Rental from '@/models/rental';
 import connect from '@/utils/db';
 import { NextResponse } from "next/server";
 import { ObjectId } from 'mongodb';
+import { NextApiRequest } from 'next';
 
 
 export async function POST(request: Request) {
@@ -102,18 +103,20 @@ export async function POST(request: Request) {
 }
 
 
-export async function GET(request: Request) {
-    await connect();
-    
-    const { idClient } = await request.json();
+export async function GET(req: NextApiRequest) {
     try {
+        console.log("***************hy***********************")
+        //const { idClient } = req.params.idClient;
+        const { searchParams } = new URL(req.url)
+        const idClient = searchParams.get('idClient')
+        await connect();
         const rentals = await Rental.find({idClient:  new ObjectId(idClient)});
         return NextResponse.json(
             { message: "Rental is registered successfully", rentals: rentals },
             { status: 200 }
         )
-        // res.status(200).json(rentals)
     } catch (error) {
+        console.error(error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }
@@ -121,13 +124,12 @@ export async function GET(request: Request) {
     }
 }
 
-
 export async function DELETE(request: Request) {
     await connect();
     try {
         const { retanlId } = await request.json();
 
-        const result = await Rental.deleteOne({ _id:  new ObjectId(retanlId) });
+        await Rental.deleteOne({ _id:  new ObjectId(retanlId) });
         return NextResponse.json(
             { message: "Rental is deleted successfully" },
             { status: 200 }

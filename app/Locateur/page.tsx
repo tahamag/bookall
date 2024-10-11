@@ -1,10 +1,17 @@
 "use client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SideBar from "@/components/component/sideBar";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
 type Rental = {
@@ -18,38 +25,32 @@ type Rental = {
 const dashboard = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
-  const [idCLient, setIdCLient] = useState();
+  //const [idCLient, setIdCLient] = useState();
   const [error, setError] = useState<string | null>(null);
   const [editingRental, setEditingRental] = useState<Rental | null>(null);
-
-  const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   useEffect(() => {
-    if (sessionStatus !== "authenticated") {
-      router.replace("/Locateur/Login");
-    } else {
+    // Your code here will only run once, after the initial render and DOM mutations
+    if (sessionStatus === "authenticated") {
       if (session?.user?.id) {
-        alert(session.user.id)
-        setIdCLient(session.user.id);
+        //setIdCLient(session.user.id);
+        fetchRentals(session.user.id);
       }
-    }
-  }, [sessionStatus, router]);
+    } else if (sessionStatus === "unauthenticated")
+      router.replace("/Locateur/Login");
+  }, [sessionStatus]);
 
+/*
   useEffect(() => {
     fetchRentals();
-  }, []);
+  }, []);*/
 
-  const fetchRentals = async () => {
+  const fetchRentals = async (idClient:string) => {
     try {
       //const response = await fetch("/api/rental");
-      console.log(idCLient)
-      const response = await fetch(`/api/rental`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idCLient }),
-      });
+      //console.log(idClient)
+      const response = await fetch(`/api/rental?idClient=${idClient}`)
       if (!response.ok) throw new Error("Failed to fetch rentals");
       else {
         const data = await response.json();
@@ -71,7 +72,7 @@ const dashboard = () => {
         body: JSON.stringify(rental),
       });
       if (!response.ok) throw new Error("Failed to update rental");
-      fetchRentals();
+      //fetchRentals();
       setEditingRental(null);
     } catch (err) {
       setError("Failed to update rental");
@@ -87,7 +88,7 @@ const dashboard = () => {
         body: JSON.stringify({ retanlId }),
       });
       if (!response.ok) throw new Error("Failed to delete rental");
-      else fetchRentals();
+      //else fetchRentals();
     } catch (err) {
       setError("Failed to delete rental");
     }
