@@ -1,50 +1,63 @@
 import mongoose from "mongoose";
 
-const {Schema} = mongoose;
-/* firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password*/
+const { Schema } = mongoose;
+/* firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password, role,rental*/
 const ClientSchema = new Schema(
-    {
-        firstName :{
-            type : String ,
-            required  : true
-        } ,
-        lastName :{
-            type : String ,
-            required  : true
-        } ,
-        email :{
-            type : String ,
-            required  : true
-        } ,
-        birthday :{
-            type : Date ,
-            required  : true
-        } ,
-        phoneNumber : {
-            type : String ,
-            required : true ,
-        },
-        identifiant : {
-            type : String ,
-            required : true ,
-        },
-        adress : {
-            type : String ,
-            required : true ,
-        },
-        password : {
-            type : String ,
-            required : true ,
-        },
-        type : {
-            type : String ,
-        },
-        rental : {
-            type : String ,
-        }
+  {
+    firstName: {
+      type: String,
+      required: true,
     },
-    {timestamps : true}
+    lastName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    birthday: {
+      type: Date,
+      required: function () {
+        return this.role !== "admin";
+      },
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    identifiant: {
+      type: String,
+      required: function () {
+        return this.role !== "admin";
+      },
+    },
+    adress: {
+      type: String,
+      required: function () {
+        return this.role !== "admin";
+      },
+    },
+    password: {
+      type: String,
+      required: function () {
+        return this.role !== "admin";
+      },
+    },
+    role: {
+      type: String,
+      enum: ["admin", "locateur", "locataire"],
+    },
+    rental: {
+      type: String,
+      required: function () {
+        return this.role !== "admin";
+      },
+    },
+  },
+  { timestamps: true }
 );
 
-const ClientModel = mongoose.models.Client || mongoose.model("Client", ClientSchema);
+const ClientModel =
+  mongoose.models.Client || mongoose.model("Client", ClientSchema);
 export default ClientModel;
