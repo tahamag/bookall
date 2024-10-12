@@ -11,7 +11,13 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-      },
+        gray: { 
+          700: '#3d3d3d', 
+          800: '#2b2b2b', 
+          900: '#1a1a1a',
+        },
+        white: '#f5f5f5',
+        },
     },
       colors: {
             "border": "hsl(var(--border))",
