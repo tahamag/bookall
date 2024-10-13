@@ -16,8 +16,6 @@ export async function POST(request: Request) {
     const price = data.get('price');
     const city = data.get('city');
     const disposability = data.get('disposability');
-    //const files: File[] | null = data.getAll('additionalImages') as unknown as File[];
-    //const files: File[] | null = Array.from(data.getAll('additionalImages')).filter(file => file instanceof File) as File[];
     const file: File | null = data.get('mainImage') as unknown as File ;
 
     const bytes = await file.arrayBuffer()
@@ -105,14 +103,17 @@ export async function POST(request: Request) {
 
 export async function GET(req: NextApiRequest) {
     try {
-        console.log("***************hy***********************")
-        //const { idClient } = req.params.idClient;
+        let rentals;
         const { searchParams } = new URL(req.url)
-        const idClient = searchParams.get('idClient')
+        const idClient = searchParams.get('idClient')?? null ;
+        const rentalId = searchParams.get('rentalId')?? null ;
         await connect();
-        const rentals = await Rental.find({idClient:  new ObjectId(idClient)});
-        return NextResponse.json(
-            { message: "Rental is registered successfully", rentals: rentals },
+        if(idClient != null)
+            rentals = await Rental.find({idClient:  new ObjectId(idClient)});
+        if(rentalId != null)
+            rentals = await Rental.findOne({_id:  new ObjectId(rentalId)});
+            return NextResponse.json(
+            { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }
         )
     } catch (error) {
@@ -141,5 +142,70 @@ export async function DELETE(request: Request) {
             { error: 'An unexpected error occurred' },
             { status: 500 }
         )
+    }
+}
+
+export async function PUT(request: NextApiRequest) {
+    try {
+        const { searchParams } = new URL(request.url)
+        const rentalId = searchParams.get('rentalId')?? null ;
+        const formData = await request.formData();
+
+        // Extract data from formData
+        const name = formData.get('name') as string;
+        const description = formData.get('description') as string;
+        const price = parseFloat(formData.get('price') as string);
+        const city = formData.get('city') as string;
+        const disposability = formData.get('disposability') === 'true';
+        const rentalType = formData.get('rentalType') as 'Hotel' | 'Apartment' | 'Car';
+
+        // Validate required fields
+        if (!rentalId || !name || !description || isNaN(price) || !city || !rentalType) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        // Prepare update data
+        const updateData: any = {
+            name,
+            description,
+            price,
+            city,
+            disposability,
+            rentalType,
+        };
+
+        // Handle type-specific fields
+        if (rentalType === 'Hotel' || rentalType === 'Apartment') {
+            updateData.address = formData.get('address') as string;
+            updateData.nbrChamber = parseInt(formData.get('nbrChamber') as string);
+            updateData.wifi = formData.get('wifi') === 'true';
+            updateData.parking = formData.get('parking') === 'true';
+            updateData.piscine = formData.get('piscine') === 'true';
+            if (rentalType === 'Hotel') {
+                updateData.restoration = formData.get('restoration') === 'true';
+            }
+        } else if (rentalType === 'Car') {
+            updateData.model = formData.get('model') as string;
+            updateData.marque = formData.get('marque') as string;
+            updateData.automatique = formData.get('automatique') === 'true';
+            updateData.typeCars = formData.get('typeCars') as string;
+        }
+        // Handle main image upload
+        const mainImage = formData.get('mainImage') as File;
+        if (mainImage) {
+            const file: File | null = formData.get('mainImage') as unknown as File ;
+            const bytes = await file.arrayBuffer()
+            updateData.mainImage = Buffer.from(bytes)
+        }
+
+        // Update rental in database
+        const updatedRental = await Rental.updateOne({
+            _id: new ObjectId(rentalId) },
+            {$set: updateData},
+        );
+        return NextResponse.json({ message: 'Rental updated successfully', rental: updatedRental }, { status: 200 });
+    } catch (error) {
+        console.error('Error updating rental:', error);
+        return NextResponse.json({ error: 'Failed to update rental' }, { status: 500 });
     }
 }

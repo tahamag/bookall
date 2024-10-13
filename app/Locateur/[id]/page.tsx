@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,48 +16,54 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { X, Upload } from "lucide-react";
+import Image from "next/image";
 
-let rentalId: string;
-let additionalImages: File[];
-
-type FormData = {
+type Rental = {
+  id: string;
   name: string;
   description: string;
-  price: string;
+  price: number;
   city: string;
   disposability: boolean;
-  mainImage: File;
+  mainImage: string;
+  additionalImages: string[];
+  address?: string;
+  nbrChamber?: number;
+  wifi?: boolean;
+  parking?: boolean;
+  piscine?: boolean;
+  restoration?: boolean;
+  model?: string;
+  marque?: string;
+  automatique?: boolean;
+  typeCars?: string;
+  rentalType: "Hotel" | "Apartment" | "Car";
+};
+
+type FormData = Omit<Rental, 'id' | 'mainImage' | 'additionalImages'> & {
+  mainImage: File | null;
   additionalImages: File[];
-  address: string;
-  nbrChamber: string;
-  wifi: boolean;
-  parking: boolean;
-  piscine: boolean;
-  restoration: boolean;
-  model: string;
-  marque: string;
-  automatique: boolean;
-  typeCars: string;
 };
 
 type FormErrors = {
   [K in keyof FormData]?: string;
 };
-export default function Add() {
-  const { data: session, status: sessionStatus } = useSession();
+
+const UpdateRental = () => {
+  const { id } = useParams();
   const router = useRouter();
-  const [rentalType, setRentalType] = useState();
-  const [idClient, setIdClient] = useState();
-  const [formData, setFormData] = useState({
+  const { data: session, status: sessionStatus } = useSession();
+  const [rental, setRental] = useState<Rental | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
-    price: "",
+    price: 0,
     city: "",
     disposability: false,
     mainImage: null,
     additionalImages: [],
     address: "",
-    nbrChamber: "",
+    nbrChamber: 0,
     wifi: false,
     parking: false,
     piscine: false,
@@ -66,40 +72,68 @@ export default function Add() {
     marque: "",
     automatique: false,
     typeCars: "",
+    rentalType: "Hotel",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  /*
-    if (sessionStatus === 'authenticated')
-        var v= 1
-    else
-        router.replace("/Locateur/Login");*/
+  const [isLoading, setIsLoading] = useState(true);
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
 
   useEffect(() => {
-    if (session?.user?.rental) {
-      setRentalType(session.user.rental);
+    if (sessionStatus === "authenticated" && session?.user?.id) {
+        fetchRental(id as string);
+        fetchAdditionalImages(id as string);
+    } else if (sessionStatus === "unauthenticated") {
+        router.replace("/Locateur/Login");
     }
-    if (session?.user?.id) {
-      setIdClient(session.user.id);
+  }, [sessionStatus, session, id, router]);
+
+const fetchRental = async (rentalId: string) => {
+    setIsLoading(true);
+    try {
+        const response = await fetch(`/api/rental?rentalId=${rentalId}`);
+        if (!response.ok) throw new Error("Failed to fetch rental");
+        const data = await response.json();
+        setRental(data.rentals);
+        setFormData(prev => ({
+            ...prev,
+            ...data.rentals,
+            mainImage: null,
+            additionalImages: [],
+        }));
+    } catch (err) {
+        console.error(err);
+    } finally {
+        setIsLoading(false);
     }
-  }, [session]);
+};
+const fetchAdditionalImages = async (rentalId: string) => {
+    try {
+        const response = await fetch(`/api/uploadimg?rentalId=${rentalId}`);
+        if (!response.ok) throw new Error("Failed to fetch additional images");
+        const data = await response.json();
+        setAdditionalImages(data.images);
+    } catch (err) {
+        console.error(err);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const handleCheckboxChange = (name: keyof FormData) => {
-    setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
+    setFormData(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({ ...prev, mainImage: e.target.files![0] }));
-      setErrors((prev) => ({ ...prev, mainImage: "" }));
+      setFormData(prev => ({ ...prev, mainImage: e.target.files![0] }));
+      setErrors(prev => ({ ...prev, mainImage: "" }));
     }
   };
 
@@ -107,7 +141,7 @@ export default function Add() {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.files) {
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         additionalImages: [
           ...prev.additionalImages,
@@ -118,11 +152,11 @@ export default function Add() {
   };
 
   const removeMainImage = () => {
-    setFormData((prev) => ({ ...prev, mainImage: null }));
+    setFormData(prev => ({ ...prev, mainImage: null }));
   };
 
   const removeAdditionalImage = (index: number) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       additionalImages: prev.additionalImages.filter((_, i) => i !== index),
     }));
@@ -140,40 +174,36 @@ export default function Add() {
       newErrors.description = "Description is required";
       isValid = false;
     }
-    if (!formData.price.trim()) {
-      newErrors.price = "Price is required";
+    if (formData.price <= 0) {
+      newErrors.price = "Price must be greater than 0";
       isValid = false;
     }
     if (!formData.city.trim()) {
       newErrors.city = "City is required";
       isValid = false;
     }
-    if (!formData.mainImage) {
-      newErrors.mainImage = "Main image is required";
-      isValid = false;
-    }
 
-    if (rentalType === "Hotel" || rentalType === "Apartment") {
-      if (!formData.address.trim()) {
+    if (formData.rentalType === "Hotel" || formData.rentalType === "Apartment") {
+      if (!formData.address?.trim()) {
         newErrors.address = "Address is required";
         isValid = false;
       }
-      if (!formData.nbrChamber.trim()) {
-        newErrors.nbrChamber = "Number of rooms is required";
+      if (!formData.nbrChamber || formData.nbrChamber <= 0) {
+        newErrors.nbrChamber = "Number of rooms must be greater than 0";
         isValid = false;
       }
     }
 
-    if (rentalType === "Car") {
-      if (!formData.model.trim()) {
+    if (formData.rentalType === "Car") {
+      if (!formData.model?.trim()) {
         newErrors.model = "Model is required";
         isValid = false;
       }
-      if (!formData.marque.trim()) {
+      if (!formData.marque?.trim()) {
         newErrors.marque = "Brand is required";
         isValid = false;
       }
-      if (!formData.typeCars.trim()) {
+      if (!formData.typeCars?.trim()) {
         newErrors.typeCars = "Car type is required";
         isValid = false;
       }
@@ -182,92 +212,101 @@ export default function Add() {
     setErrors(newErrors);
     return isValid;
   };
-  const uploadImage = async () => {
-    if (additionalImages.length > 0) {
-      for (let i = 0; i < additionalImages.length; i++) {
-        const image = additionalImages[i];
-        const formData = new FormData();
-        formData.append("image", image);
-        formData.append("rentalId", rentalId);
 
-        const res = await fetch("/api/uploadimg", {
+  const handleDelete = async (retanlId: string) => {
+    try {
+      const response = await fetch(`/api/uploadimg`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ retanlId }),
+      });
+      if (!response.ok) throw new Error("Failed to delete rental");
+      
+    } catch (err) {
+      console.error(err )
+    }
+  };
+
+  const uploadImage = async () => {
+    if (formData.additionalImages.length > 0) {
+      
+      handleDelete(id)
+      for (let i = 0; i < formData.additionalImages.length; i++) {
+        const image = formData.additionalImages[i];
+        const FD = new FormData();
+        FD.append("image", image);
+        FD.append("rentalId", id);
+       const res = await fetch("/api/uploadimg", {
           method: "POST",
-          body: formData,
+          body: FD,
         });
         if (!res.ok) {
           throw new Error("Failed to upload image");
         } else router.push("/Locateur");
-      }
+       /**/}
     }
-    return "null";
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
-      // todo : generete error validation form
       return;
     }
     setIsSubmitting(true);
     try {
-      console.log("full data ", formData);
 
       const data = new FormData();
-      // Prepare rental data
-      // generale data
-      data.append("idClient", idClient);
-      data.append("rentalType", rentalType);
-      data.append("name", formData.name);
-      data.append("description", formData.description);
-      data.append("price", parseFloat(formData.price));
-      data.append("city", formData.city);
-      data.append("disposability", formData.disposability);
-      data.append("mainImage", formData.mainImage);
-      data.append("additionalImages", additionalImages);
+      Object.entries(formData).forEach(([key, value]) => {
+        
+       /*if (key === "additionalImages") {
+          uploadImage();
+          (value as File[]).forEach((file, index) => {
+            data.append(`additionalImages[${index}]`, file);
+            //.log("file ",file)
 
-      //Hotel AND Apartment data
-      if (rentalType === "Hotel" || rentalType === "Apartment") {
-        data.append("address", formData.address);
-        data.append("nbrChamber", parseInt(formData.nbrChamber));
-        data.append("wifi", formData.wifi);
-        data.append("parking", formData.parking);
-        data.append("piscine", formData.piscine);
-      }
+          });
+        }*/
+        if (key === "mainImage" && value instanceof File) {
+          data.append(key, value);
+        } else if (value !== null && value !== undefined) {
+          data.append(key, value.toString());
+        }
+      });
 
-      if (rentalType === "Hotel") {
-        data.append("restoration", formData.restoration);
-      }
-      //Car data
-      if (rentalType === "Car") {
-        data.append("model", formData.model);
-        data.append("marque", formData.marque);
-        data.append("automatique", formData.automatique);
-        data.append("typeCars", formData.typeCars);
-      }
-      console.log("full data ", formData);
-      // Send data to API
-      const response = await fetch("/api/rental", {
-        method: "POST",
+      console.log("all data",formData)
+
+      const response = await fetch(`/api/rental?rentalId=${id}`, {
+        method: "PUT",
         body: data,
       });
-      if (response.status === 200) {
-        const returnData = await response.json();
-        rentalId = returnData.rentalId;
-        additionalImages = formData.additionalImages;
-        if (formData.additionalImages != null) {
-          uploadImage();
-        }
+      if (response.status == 200) {
+        console.log(formData.additionalImages)
+        uploadImage();
         //router.push("/Locateur");
-      }
+      } else {
+        throw new Error("Failed to update rental");
+      }/**/
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error updating rental:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (!rental) {
+    return <div className="flex justify-center items-center h-screen">Rental not found</div>;
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle>
-          Add New {rentalType?.charAt(0).toUpperCase() + rentalType?.slice(1)}
+          Update {formData.rentalType}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -278,12 +317,12 @@ export default function Add() {
               <Input
                 id="name"
                 name="name"
-                value={formData.name}
+                value={formData.name }
                 onChange={handleInputChange}
                 required
               />
               {errors.name && (
-                <p className="text-sm text-error">{errors.name}</p>
+                <p className="text-sm text-red-500">{errors.name}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -297,7 +336,7 @@ export default function Add() {
                 required
               />
               {errors.price && (
-                <p className="text-sm text-error">{errors.price}</p>
+                <p className="text-sm text-red-500">{errors.price}</p>
               )}
             </div>
           </div>
@@ -306,78 +345,96 @@ export default function Add() {
             <Textarea
               id="description"
               name="description"
-              value={formData.description}
+              value={ formData.description}
               onChange={handleInputChange}
               required
             />
             {errors.description && (
-              <p className="text-sm text-error">{errors.description}</p>
+              <p className="text-sm text-red-500">{errors.description}</p>
             )}
           </div>
-          {/* city*/}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="mainImage">Main Image (Required)</Label>
-              <div className="relative">
-                <Input
-                  id="mainImage"
-                  name="mainImage"
-                  type="file"
-                  onChange={handleMainImageChange}
-                  accept="image/*"
-                  required
-                  className="hidden"
+          <div className="space-y-2">
+            <Label htmlFor="mainImage">Main Image</Label>
+            {rental.mainImage && (
+              <div className="relative w-full h-48 mb-2">
+                <Image
+                    src={`data:image/jpeg;base64,${Buffer.from(
+                      rental.mainImage
+                    ).toString("base64")}`}
+                  alt="Current main image"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-md"
                 />
-                <Button
-                  type="button"
-                  onClick={() => document.getElementById("mainImage")?.click()}
-                  className="w-full flex items-center justify-center"
-                >
-                  <Upload className="mr-2 h-4 w-4" /> Upload Main Image
-                </Button>
               </div>
-              {errors.mainImage && (
-                <p className="text-sm text-error">{errors.mainImage}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
+            )}
+            <div className="relative">
               <Input
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                required
+                id="mainImage"
+                name="mainImage"
+                type="file"
+                onChange={handleMainImageChange}
+                accept="image/*"
+                className="hidden"
               />
-              {errors.city && (
-                <p className="text-sm text-error">{errors.city}</p>
-              )}
+              <Button
+                type="button"
+                onClick={() => document.getElementById("mainImage")?.click()}
+                className="w-full flex items-center justify-center"
+              >
+                <Upload className="mr-2 h-4 w-4" /> Upload New Main Image
+              </Button>
             </div>
           </div>
-
           {formData.mainImage && (
             <div className="space-y-2">
               <div className="relative inline-block">
                 <img
                   src={URL.createObjectURL(formData.mainImage)}
-                  alt="Main image preview"
-                  className="w-40 h-40 object-cover rounded"
+                  alt="New main image preview"
+                  className="w-full h-48 object-cover rounded-md"
                 />
                 <button
                   type="button"
                   onClick={removeMainImage}
-                  className="absolute top-0 right-0 bg-error text-white rounded-full p-1"
-                  aria-label="Remove main image"
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                  aria-label="Remove new main image"
                 >
-                  <X size={12} />
+                  <X size={16} />
                 </button>
               </div>
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="additionalImages">
-              Additional Images (Optional)
-            </Label>
+            <Label htmlFor="city">City</Label>
+            <Input
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              required
+            />
+            {errors.city && (
+              <p className="text-sm text-red-500">{errors.city}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="additionalImages">Additional Images</Label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {additionalImages.map((img, index) => (
+                <div key={index} className="relative">
+                  <Image
+                    src={`data:image/jpeg;base64,${Buffer.from(
+                      img.image
+                    ).toString("base64")}`}
+                    alt={`Additional image ${index + 1}`}
+                    width={80}
+                    height={80}
+                    className="object-cover rounded"
+                  />
+                </div>
+              ))}
+            </div>
             <div className="relative">
               <Input
                 id="additionalImages"
@@ -390,9 +447,7 @@ export default function Add() {
               />
               <Button
                 type="button"
-                onClick={() =>
-                  document.getElementById("additionalImages")?.click()
-                }
+                onClick={() => document.getElementById("additionalImages")?.click()}
                 className="w-full flex items-center justify-center"
               >
                 <Upload className="mr-2 h-4 w-4" /> Upload Additional Images
@@ -406,13 +461,13 @@ export default function Add() {
                   <div key={index} className="relative">
                     <img
                       src={URL.createObjectURL(file)}
-                      alt={`Additional image ${index + 1}`}
+                      alt={`New additional image ${index + 1}`}
                       className="w-20 h-20 object-cover rounded"
                     />
                     <button
                       type="button"
                       onClick={() => removeAdditionalImage(index)}
-                      className="absolute top-0 right-0 bg-error text-white rounded-full p-1"
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
                       aria-label={`Remove additional image ${index + 1}`}
                     >
                       <X size={12} />
@@ -430,20 +485,19 @@ export default function Add() {
             />
             <Label htmlFor="disposability">Available</Label>
           </div>
-
-          {(rentalType === "Hotel" || rentalType === "Apartment") && (
+          {(formData.rentalType === "Hotel" || formData.rentalType === "Apartment") && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
                 <Input
                   id="address"
                   name="address"
-                  value={formData.address}
+                  value={ formData.address}
                   onChange={handleInputChange}
                   required
                 />
                 {errors.address && (
-                  <p className="text-sm text-error">{errors.address}</p>
+                  <p className="text-sm text-red-500">{errors.address}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -452,17 +506,18 @@ export default function Add() {
                   id="nbrChamber"
                   name="nbrChamber"
                   type="number"
-                  value={formData.nbrChamber}
+                  value={ formData.nbrChamber}
                   onChange={handleInputChange}
                   required
                 />
                 {errors.nbrChamber && (
-                  <p className="text-sm text-error">{errors.nbrChamber}</p>
+                  <p className="text-sm text-red-500">{errors.nbrChamber}</p>
                 )}
               </div>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
+                    
                     id="wifi"
                     checked={formData.wifi}
                     onCheckedChange={() => handleCheckboxChange("wifi")}
@@ -485,14 +540,12 @@ export default function Add() {
                   />
                   <Label htmlFor="piscine">Swimming Pool</Label>
                 </div>
-                {rentalType === "Hotel" && (
+                {formData.rentalType === "Hotel" && (
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="restoration"
                       checked={formData.restoration}
-                      onCheckedChange={() =>
-                        handleCheckboxChange("restoration")
-                      }
+                      onCheckedChange={() => handleCheckboxChange("restoration")}
                     />
                     <Label htmlFor="restoration">Restaurant</Label>
                   </div>
@@ -500,7 +553,7 @@ export default function Add() {
               </div>
             </>
           )}
-          {rentalType === "Car" && (
+          {formData.rentalType === "Car" && (
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -513,7 +566,7 @@ export default function Add() {
                     required
                   />
                   {errors.model && (
-                    <p className="text-sm text-error">{errors.model}</p>
+                    <p className="text-sm text-red-500">{errors.model}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -526,7 +579,7 @@ export default function Add() {
                     required
                   />
                   {errors.marque && (
-                    <p className="text-sm text-error">{errors.marque}</p>
+                    <p className="text-sm text-red-500">{errors.marque}</p>
                   )}
                 </div>
               </div>
@@ -557,9 +610,11 @@ export default function Add() {
       </CardContent>
       <CardFooter>
         <Button type="submit" onClick={handleSubmit} className="w-full">
-          {isSubmitting ? "Adding Rental..." : "Add Rental"}
+          {isSubmitting ? "Updating Rental..." : "Update Rental"}
         </Button>
       </CardFooter>
     </Card>
   );
-}
+};
+
+export default UpdateRental;

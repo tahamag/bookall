@@ -25,16 +25,15 @@ type Rental = {
 const dashboard = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(true);
-  //const [idCLient, setIdCLient] = useState();
+  const [idCLient, setIdCLient] = useState();
   const [error, setError] = useState<string | null>(null);
-  const [editingRental, setEditingRental] = useState<Rental | null>(null);
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   useEffect(() => {
     // Your code here will only run once, after the initial render and DOM mutations
     if (sessionStatus === "authenticated") {
       if (session?.user?.id) {
-        //setIdCLient(session.user.id);
+        setIdCLient(session.user.id);
         fetchRentals(session.user.id);
       }
     } else if (sessionStatus === "unauthenticated")
@@ -64,16 +63,17 @@ const dashboard = () => {
     }
   };
 
-  const handleUpdate = async (rental: Rental) => {
+  const handleUpdate = async (rentalId: string) => {
     try {
-      const response = await fetch("/api/rentals", {
+     /* const response = await fetch("/api/rentals", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(rental),
       });
       if (!response.ok) throw new Error("Failed to update rental");
-      //fetchRentals();
-      setEditingRental(null);
+      fetchRentals(idCLient);
+      setEditingRental(null);*/
+      router.push(`/Locateur/${rentalId}`);
     } catch (err) {
       setError("Failed to update rental");
     }
@@ -88,7 +88,7 @@ const dashboard = () => {
         body: JSON.stringify({ retanlId }),
       });
       if (!response.ok) throw new Error("Failed to delete rental");
-      //else fetchRentals();
+      else fetchRentals(idCLient);
     } catch (err) {
       setError("Failed to delete rental");
     }
@@ -134,7 +134,7 @@ const dashboard = () => {
                   <div className="flex space-x-2">
                     <Button
                       variant="outline"
-                      onClick={() => setEditingRental(rental)}
+                      onClick={() => handleUpdate(rental._id)}
                     >
                       Update
                     </Button>
