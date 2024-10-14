@@ -10,11 +10,11 @@ const SideBar = () => (
         <Home size={20} />
         <span>Admin Page</span>
       </Link>
-      <Link href="/admin/manageAdmins" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+      <Link href="/Admin/manageAdmins" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
         <Users size={20} />
         <span>Admins</span>
       </Link>
-      <Link href="/admin/locateurs" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
+      <Link href="/Admin/manageLocateurs" className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
         <Users size={20} />
         <span>Locateurs</span>
       </Link>

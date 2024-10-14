@@ -40,10 +40,8 @@ const ClientSchema = new Schema(
     },
     password: {
       type: String,
-      required: function () {
-        return this.role !== "admin";
+      required: true,
       },
-    },
     role: {
       type: String,
       enum: ["admin", "locateur", "locataire"],
