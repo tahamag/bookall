@@ -9,23 +9,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 
-interface AdminFormData {
+interface UserFormData {
   firstName: string
   lastName: string
-  phoneNumber: string
   email: string
+  birthday: string
+  phoneNumber: string
+  identifiant: string
+  adress: string
+  password: string
   role: string
-  password?: string
+  rental: string
 }
 
-export default function EditAdminPage() {
-  const [formData, setFormData] = useState<AdminFormData>({
+export default function EditUserPage() {
+  const [formData, setFormData] = useState<UserFormData>({
     firstName: '',
     lastName: '',
-    phoneNumber: '',
     email: '',
-    role: 'admin',
+    birthday: '',
+    phoneNumber: '',
+    identifiant: '',
+    adress: '',
     password: '',
+    role: 'admin',
+    rental: '',
   })
   const [loading, setLoading] = useState(true)
   
@@ -35,39 +43,42 @@ export default function EditAdminPage() {
   const { toast } = useToast()
 
   useEffect(() => {
-    const GetDataAdmin = async () => {
-        console.log('Admin ID:', id); // Debugging line
-  if (!id) {
-    console.error('Admin ID is missing');
-    return;
-  }
+    const getUserData = async () => {
+      console.log('User ID:', id)
+      if (!id) {
+        console.error('User ID is missing')
+        return
+      }
       try {
-        const response = await fetch(`/api/Admin/manageAdmins/${id}`)
+        const response = await fetch(`/api/Admin/${id}`)
         if (!response.ok) {
-          throw new Error('Failed to fetch admin data')
+          throw new Error('Failed to fetch user data')
         }
-        const adminData = await response.json()
+        const { user } = await response.json()
         setFormData({
-          firstName: adminData.firstName,
-          lastName: adminData.lastName,
-          phoneNumber: adminData.phoneNumber,
-          email: adminData.email,
-          role: adminData.role,
-          password: '', // Don't pre-fill password for security reasons
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phoneNumber: user.phoneNumber,
+          email: user.email,
+          role: user.role,
+          password: '', 
+          birthday: user.birthday || '',
+          identifiant: user.identifiant || '',
+          adress: user.adress || '',
+          rental: user.rental || ''
         })
-        setLoading(false)
       } catch (error) {
-        console.error('Error fetching admin data:', error)
+        console.error('Error fetching user data:', error)
         toast({
           title: "Error",
-          description: "Unable to load admin data.",
+          description: "Unable to load user data.",
           variant: "destructive",
         })
+      } finally {
         setLoading(false)
       }
     }
-
-    GetDataAdmin()
+    getUserData()
   }, [id, toast])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,35 +91,46 @@ export default function EditAdminPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('handleSubmit appelé');
     e.preventDefault()
     setLoading(true)
-
     try {
-      const response = await fetch(`/api/Admin/manageAdmins/${id}`, {
+      const dataToSend = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        role: formData.role,
+        ...(formData.password && { password: formData.password }),
+        ...(formData.role === 'locateur' && {
+          birthday: formData.birthday,
+          identifiant: formData.identifiant,
+          adress: formData.adress,
+          rental: formData.rental
+        })
+      };
+  
+      const response = await fetch(`/api/Admin/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       })
-
       if (!response.ok) {
-        throw new Error('Failed to update admin')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update user')
       }
-
+      const { user } = await response.json()
       toast({
         title: "Success",
-        description: "Admin updated successfully.",
+        description: `Admin ${user.firstName} ${user.lastName} updated successfully.`
       })
-      setTimeout(() => {
-        router.push('/Admin/manageAdmins')
-      }, 2000) 
+      await router.push('/Admin/accounts');
     } catch (error) {
-      console.error('Error updating admin:', error)
+      console.error('Error updating user:', error)
       toast({
         title: "Error",
-        description: "An error occurred while updating the admin.",
+        description: error instanceof Error ? error.message : "An error occurred while updating the user.",
         variant: "destructive",
       })
     } finally {
@@ -124,7 +146,7 @@ export default function EditAdminPage() {
     <div className="container mx-auto py-10">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Edit Administrator</CardTitle>
+          <CardTitle className="text-2xl font-bold">Edit User</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -177,9 +199,51 @@ export default function EditAdminPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
+                  <SelectItem value="locateur">Locateur</SelectItem>
+                </SelectContent>
               </Select>
             </div>
+            {formData.role === 'locateur' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="birthday">Birthday</Label>
+                  <Input
+                    id="birthday"
+                    name="birthday"
+                    type="date"
+                    value={formData.birthday}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="identifiant">Identifiant</Label>
+                  <Input
+                    id="identifiant"
+                    name="identifiant"
+                    value={formData.identifiant}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="adress">Address</Label>
+                  <Input
+                    id="adress"
+                    name="adress"
+                    value={formData.adress}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="rental">Rental</Label>
+                  <Input
+                    id="rental"
+                    name="rental"
+                    value={formData.rental}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </>
+            )}
             <div className="space-y-2">
               <Label htmlFor="password">New Password (leave blank to keep current)</Label>
               <Input
@@ -191,7 +255,7 @@ export default function EditAdminPage() {
               />
             </div>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Update Administrator'}
+              {loading ? 'Updating...' : 'Update User'}
             </Button>
           </form>
         </CardContent>

@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Pencil, Trash2, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation'
 
 interface Locateur {
-  id: string;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -23,49 +24,49 @@ interface Locateur {
 }
 
 export default function LocateursList() {
-  const [locateurs, setLocateurs] = useState<Locateur[]>([])
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
+  const [locateurs, setLocateurs] = useState<Locateur[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const router = useRouter();
 
-  const getLocateurs = async () => {
+
+  const getUsersByRole = async (role : string) => {
     try {
-      const response = await fetch('/api/Admin/manageLocateurs', {
+      const res = await fetch(`/api/Admin?role=${role}`, {
         cache: 'no-store',
       })
-      if (!response.ok) {
-        throw new Error('Failed to fetch locateurs')
+      if (!res.ok) {
+        throw new Error(`Failed to fetch users with role: ${role}`);
       }
-      const data = await response.json()
-      setLocateurs(data)
+      const data = await res.json();
+      setLocateurs(data);
     } catch (error) {
       console.error('Error fetching locateurs:', error)
-      toast({
-        title: "Error",
-        description: "Failed to fetch locateurs. Please try again.",
-        variant: "destructive",
-      })
     } finally {
-      setLoading(false)
+      setLoading(false) 
     }
   }
-
+  
   useEffect(() => {
-    getLocateurs()
-  }, [])
+    getUsersByRole('locateur');
+
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this locateur?")) {
       try {
-        const response = await fetch(`/api/Admin/manageLocateurs/${id}`, {
+        const res = await fetch(`/api/Admin?id=${id}`, {
           method: 'DELETE',
         })
 
-        if (response.ok) {
+        if (res.ok) {
           toast({
             title: "Success",
             description: "Locateur has been successfully deleted.",
           })
-          getLocateurs() 
+          router.refresh();
+          getUsersByRole('locateur'); 
+        } else {
           throw new Error('Error during deletion')
         }
       } catch (error) {
@@ -77,7 +78,7 @@ export default function LocateursList() {
         })
       }
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -107,7 +108,7 @@ export default function LocateursList() {
                   </TableRow>
                 ) : (
                   locateurs.map((locateur) => (
-                    <TableRow key={locateur.id}>
+                    <TableRow key={locateur._id}>
                       <TableCell>{`${locateur.firstName} ${locateur.lastName}`}</TableCell>
                       <TableCell>{locateur.email}</TableCell>
                       <TableCell>{locateur.phoneNumber}</TableCell>
@@ -136,12 +137,12 @@ export default function LocateursList() {
                             </div>
                           </DialogContent>
                         </Dialog>
-                        <Link href={`/Admin/editLocateur/${locateur.id}`} passHref>
+                        <Link href={`/Admin/users/${locateur._id}`} >
                           <Button variant="outline" size="sm" className="mr-2">
                             <Pencil className="h-4 w-4 mr-1" /> Edit
                           </Button>
                         </Link>
-                        <Button variant="destructive" size="sm" onClick={() => handleDelete(locateur.id)}>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(locateur._id)}>
                           <Trash2 className="h-4 w-4 mr-1" />
                           Delete
                         </Button>

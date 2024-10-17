@@ -1,25 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Client from '@/models/client'; 
 import connect from '@/utils/db';
+import Client from '@/models/client';
+//import { ObjectId } from 'mongodb';
 
-// GET method for retrieving all admins
-export async function GET() {
-    await connect();
-
-    try {
-        const admins = await Client.find({ role: 'admin' });
-
-        if (!admins || admins.length === 0) {
-            return NextResponse.json({ message: 'No admins found' }, { status: 404 });
-        }
-        return NextResponse.json(admins, { status: 200 });
-    } catch (err) {
-        return NextResponse.json(
-            { error: 'An unexpected error occurred while fetching admins' },
-            { status: 500 }
-        );
-    }
-}
 
 export async function POST(req: NextRequest) {
     const { firstName, lastName, phoneNumber, email, role, password } = await req.json();
@@ -46,6 +29,7 @@ export async function POST(req: NextRequest) {
         );
     }
 }
+
 export async function DELETE(request: NextRequest){
     const id = request.nextUrl.searchParams.get("id");
     await connect();
@@ -57,7 +41,32 @@ export async function DELETE(request: NextRequest){
         }
         return NextResponse.json({ message: 'Admin deleted successfully' }, { status: 200 });
       } catch (error) {
-        console.error('Error deleting admin:', error);
         return NextResponse.json({ error: 'Failed to delete admin' }, { status: 500 });
       }
 }
+export async function GET(req: NextRequest) {
+    await connect();
+    console.log('Request received');
+  
+    // Récupérer le paramètre "role" depuis les query params
+    const { searchParams } = new URL(req.url);
+    const role = searchParams.get('role');
+  
+    try {
+      // Filtrer les utilisateurs par rôle (admin ou locateur)
+      const users = await Client.find(role ? { role } : {});
+      console.log('Users found:', users);
+  
+      if (!users || users.length === 0) {
+        return NextResponse.json({ message: `No users found for role: ${role}` }, { status: 404 });
+      }
+  
+      return NextResponse.json(users, { status: 200 });
+    } catch (err) {
+        console.error('Error fetching users by role:', error);
+      return NextResponse.json(
+        { error: `An unexpected error occurred while fetching users with role: ${role}` },
+        { status: 500 }
+      );
+    }
+  }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 
@@ -16,6 +17,8 @@ interface LocateurFormData {
   phoneNumber: string
   identifiant: string
   adress: string
+  password: string
+  role: string
   rental: string
 }
 
@@ -28,95 +31,110 @@ export default function EditLocateurPage() {
     phoneNumber: '',
     identifiant: '',
     adress: '',
-    rental: '',
+    password: '',
+    role: 'locateur',
+    rental: ''
   })
   const [loading, setLoading] = useState(true)
-  const params = useParams()
-  const id = params?.id as string
+  
+  const params = useParams<{ id: string }>()
+  const id = params.id
   const router = useRouter()
   const { toast } = useToast()
 
-  useEffect(() => {
-    const getLocateurData = async () => {
-      if (!id) {
-        toast({
-          title: "Error",
-          description: "Locateur ID is missing",
-          variant: "destructive",
-        })
-        router.push('/Admin/manageLocateurs')
-        return
-      }
-
-      try {
-        const response = await fetch(`/api/Admin/manageLocateurs/${id}`)
-        if (!response.ok) {
-          throw new Error('Failed to fetch locateur data')
-        }
-        const locateurData = await response.json()
-        setFormData({
-          firstName: locateurData.firstName,
-          lastName: locateurData.lastName,
-          email: locateurData.email,
-          birthday: new Date(locateurData.birthday).toISOString().split('T')[0],
-          phoneNumber: locateurData.phoneNumber,
-          identifiant: locateurData.identifiant,
-          adress: locateurData.adress,
-          rental: locateurData.rental,
-        })
-        setLoading(false)
-      } catch (error) {
-        console.error('Error fetching locateur data:', error)
-        toast({
-          title: "Error",
-          description: "Unable to load locateur data.",
-          variant: "destructive",
-        })
-        setLoading(false)
-      }
+useEffect(() => {
+  const getUserData = async () => {
+    console.log('User ID:', id)
+    if (!id) {
+      console.error('User ID is missing')
+      return
     }
-
-    getLocateurData()
-  }, [id, toast, router])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-
     try {
-      const response = await fetch(`/api/Admin/manageLocateurs/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
+      const response = await fetch(`/api/Admin/${id}`)
       if (!response.ok) {
-        throw new Error('Failed to update locateur')
+        throw new Error('Failed to fetch user data')
       }
-
-      toast({
-        title: "Success",
-        description: "Locateur updated successfully.",
+      const { user } = await response.json()
+      setFormData({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        email: user.email,
+        role: user.role,
+        password: '', 
+        birthday: user.birthday,
+        identifiant: user.identifiant,
+        adress: user.adress,
+        rental: user.rental
       })
-      router.push('/Admin/manageLocateurs')
     } catch (error) {
-      console.error('Error updating locateur:', error)
+      console.error('Error fetching user data:', error)
       toast({
         title: "Error",
-        description: "An error occurred while updating the locateur.",
+        description: "Unable to load user data.",
         variant: "destructive",
       })
     } finally {
       setLoading(false)
     }
   }
+  getUserData()
+}, [id, toast])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string) => (value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault()
+  setLoading(true)
+  try {
+    const dataToSend = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      role: formData.role,
+      ...(formData.password && { password: formData.password }),
+      birthday: formData.birthday,
+      identifiant: formData.identifiant,
+      adress: formData.adress,
+      rental: formData.rental
+    };
+
+    const response = await fetch(`/api/Admin/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dataToSend),
+    })
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to update user')
+    }
+    const { user } = await response.json()
+    toast({
+      title: "Success",
+      description: `Admin ${user.firstName} ${user.lastName} updated successfully.`
+    })
+    await router.push('/Admin/users');
+  } catch (error) {
+    console.error('Error updating user:', error)
+    toast({
+      title: "Error",
+      description: error instanceof Error ? error.message : "An error occurred while updating the user.",
+      variant: "destructive",
+    })
+  } finally {
+    setLoading(false)
+  }
+}
 
   if (loading) {
     return <div>Loading...</div>
@@ -201,6 +219,27 @@ export default function EditLocateurPage() {
                 onChange={handleInputChange}
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">New Password (leave blank to keep current)</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select onValueChange={handleSelectChange('role')} value={formData.role}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="locateur">Locateur</SelectItem>
+                  </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="rental">Rental</Label>

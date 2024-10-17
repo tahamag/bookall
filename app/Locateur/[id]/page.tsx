@@ -223,7 +223,6 @@ const fetchAdditionalImages = async (rentalId: string) => {
         body: JSON.stringify({ retanlId }),
       });
       if (!response.ok) throw new Error("Failed to delete rental");
-      
     } catch (err) {
       console.error(err )
     }

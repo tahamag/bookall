@@ -6,9 +6,10 @@ import { PlusCircle, Pencil, Trash2 } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface Admin {
-  id: string;
+  _id: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
@@ -19,41 +20,43 @@ interface Admin {
 export default function AdminsList() {
   const [admins, setAdmins] = useState<Admin[]>([]) 
   const [loading, setLoading] = useState(true) 
+  const router = useRouter();
 
-  // Fonction pour récupérer les admins depuis l'API
-  const GetAdmins = async () => {
+  const GetUsersByRole = async (role : string) => {
     try {
-      const response = await fetch('/api/Admin/manageAdmins', {
+      const res = await fetch(`/api/Admin?role=${role}`, {
         cache: 'no-store',
       })
-      if (!response.ok) {
-        throw new Error('Failed to fetch admins')
+      if (!res.ok) {
+        throw new Error(`Failed to fetch users with role: ${role}`);
       }
-      const data = await response.json()
-      setAdmins(data) 
+      const data = await res.json();
+      const filteredAdmins = data.filter((user: Admin) => user.role === 'admin');
+      setAdmins(filteredAdmins);
     } catch (error) {
       console.error('Error fetching admins:', error)
     } finally {
       setLoading(false) 
     }
   }
-
   useEffect(() => {
-    GetAdmins()
-  }, [])
+    GetUsersByRole('admin');
+  }, []);
+
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this administrator?")) {
       try {
-        const response = await fetch(`/api/Admin/manageAdmin/${id}`, {
+        const res = await fetch(`/api/Admin?id=${id}`, {
           method: 'DELETE',
         })
 
-        if (response.ok) {
+        if (res.ok) {
           toast({
             title: "Success",
             description: "Administrator has been successfully deleted.",
           })
-          GetAdmins() // Reload the admin list
+          router.refresh();
+          GetUsersByRole('admin'); 
         } else {
           throw new Error('Error during deletion')
         }
@@ -76,7 +79,7 @@ export default function AdminsList() {
         <CardHeader>
           <CardTitle>Admins List</CardTitle>
           <div className='text-right'>
-          <Link href={`/Admin/addAdmin`} >
+          <Link href={`/Admin/add`} >
                           <Button variant="outline" size="sm" className="mr-2">
                             <PlusCircle className="mr-2 h-4 w-4"  /> Create New Admin
                           </Button>
@@ -90,7 +93,6 @@ export default function AdminsList() {
             <Table>
               <TableHeader>
                 <TableRow>
-                <TableHead>Id</TableHead>
                   <TableHead>Full Name</TableHead>
                   <TableHead>Phone Number</TableHead>
                   <TableHead>Email</TableHead>
@@ -105,19 +107,18 @@ export default function AdminsList() {
                   </TableRow>
                 ) : (
                   admins.map((admin) => (
-                    <TableRow key={admin.id}>
-                      <TableCell>{admin.id}</TableCell>
+                    <TableRow key={admin._id}>
                       <TableCell>{`${admin.firstName} ${admin.lastName}`}</TableCell>
                       <TableCell>{admin.phoneNumber}</TableCell>
                       <TableCell>{admin.email}</TableCell>
                       <TableCell>{admin.role}</TableCell>
                       <TableCell>
-                      <Link href={`/Admin/editAdmin/${admin.id}`} >
+                      <Link href={`/Admin/${admin._id}`} >
                           <Button variant="outline" size="sm" className="mr-2">
                             <Pencil className="h-4 w-4 mr-1" /> Edit
                           </Button>
                         </Link>
-                        <Button variant="destructive" size="sm" onClick={() => handleDelete(admin.id)}>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(admin._id)}>
                           <Trash2 className="h-4 w-4 mr-1" />
                           Delete
                         </Button>

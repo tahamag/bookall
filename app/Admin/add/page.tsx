@@ -25,7 +25,7 @@ export default function AddAdminPage() {
     lastName: '', 
     phoneNumber: '',
     email: '',
-    role: 'admin', // Default role
+    role: 'admin', 
     password: '',
   })
   const router = useRouter();
@@ -40,11 +40,15 @@ export default function AddAdminPage() {
     setFormData(prev => ({ ...prev, role: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true)
+    if(!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.email 
+      || !formData.password) { 
+        alert('required')
+    }
     try {
-      const response = await fetch('/api/Admin/manageAdmins', {
+      const response = await fetch('/api/Admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,15 +59,12 @@ export default function AddAdminPage() {
       if (!response.ok) {
         throw new Error('Failed to create admin')
       }
-
       toast({
         title: "Success",
         description: "New admin created successfully.",
       })
-
-      // Ajout d'un délai pour permettre à l'utilisateur de voir le toast avant redirection
       setTimeout(() => {
-        router.push('/Admin/manageAdmins')
+        router.push('/Admin/accounts')
         }, 2000)
     } catch (error) {
       console.error('Error creating admin:', error)
@@ -138,8 +139,7 @@ export default function AddAdminPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
-                </SelectContent>
+                  </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
@@ -154,7 +154,7 @@ export default function AddAdminPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" onClick={handleSubmit} className="w-full" disabled={isLoading}>
               {isLoading ? 'Creating...' : 'Create Admin'}
             </Button>
           </form>

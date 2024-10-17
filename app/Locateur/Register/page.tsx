@@ -83,7 +83,7 @@ export default function RegisterForm() {
         const identifiant = e.target[5].value;
         const adress  = e.target[6].value;
         const password = e.target[7].value;
-        const type = "Locateur";//rental
+        const role = "Locateur";//rental
         //const formData = new FormData(e.currentTarget)
        // const rental = formData.get('rental')
         const rental = e.target['rental'].value;
@@ -97,7 +97,7 @@ export default function RegisterForm() {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password,type,rental}),
+                    body: JSON.stringify({firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password,role,rental}),
                 });
                 if (res.status === 400) {
                     console.log('Email already exists');
@@ -221,6 +221,7 @@ export default function RegisterForm() {
                             />
                             {errors.identifiant && <p className="text-error text-xs mt-1">{errors.identifiant}</p>}
                         </div>
+                        
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
