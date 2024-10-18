@@ -31,6 +31,7 @@ export const authOptions: any = {
                 email: client.email,
                 name: client.firstName +' '+client.lastName,
                 rental: client.rental,
+                role: client.role,
               };
             } else {
               throw new Error("Password invalid");
@@ -51,6 +52,7 @@ export const authOptions: any = {
         token.email = user.email;
         token.name = user.name;
         token.rental = user.rental;
+        token.role = user.role;
       }
       return token;
     },
@@ -60,6 +62,7 @@ export const authOptions: any = {
         session.user.email = token.email;
         session.user.name = token.name;
         session.user.rental = token.rental;
+        session.user.role = token.role;
       }
       return session;
     },
