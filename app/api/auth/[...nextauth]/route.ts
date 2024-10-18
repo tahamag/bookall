@@ -29,7 +29,7 @@ export const authOptions: any = {
               return {
                 id: client._id.toString(),
                 email: client.email,
-                name: client.firstName +''+client.lastName,
+                name: client.firstName +' '+client.lastName,
                 rental: client.rental,
               };
             } else {

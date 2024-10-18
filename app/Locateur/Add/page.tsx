@@ -37,7 +37,6 @@ type FormData = {
   model: string;
   marque: string;
   automatique: boolean;
-  typeCars: string;
 };
 
 type FormErrors = {
@@ -65,7 +64,6 @@ export default function Add() {
     model: "",
     marque: "",
     automatique: false,
-    typeCars: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -173,10 +171,6 @@ export default function Add() {
         newErrors.marque = "Brand is required";
         isValid = false;
       }
-      if (!formData.typeCars.trim()) {
-        newErrors.typeCars = "Car type is required";
-        isValid = false;
-      }
     }
 
     setErrors(newErrors);
@@ -241,7 +235,6 @@ export default function Add() {
         data.append("model", formData.model);
         data.append("marque", formData.marque);
         data.append("automatique", formData.automatique);
-        data.append("typeCars", formData.typeCars);
       }
       console.log("full data ", formData);
       // Send data to API
@@ -537,19 +530,6 @@ export default function Add() {
                   onCheckedChange={() => handleCheckboxChange("automatique")}
                 />
                 <Label htmlFor="automatique">Automatic</Label>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="typeCars">Car Type</Label>
-                <Input
-                  id="typeCars"
-                  name="typeCars"
-                  value={formData.typeCars}
-                  onChange={handleInputChange}
-                  required
-                />
-                {errors.typeCars && (
-                  <p className="text-sm text-red-500">{errors.typeCars}</p>
-                )}
               </div>
             </>
           )}

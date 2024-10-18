@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -36,11 +36,10 @@ type Rental = {
   model?: string;
   marque?: string;
   automatique?: boolean;
-  typeCars?: string;
   rentalType: "Hotel" | "Apartment" | "Car";
 };
 
-type FormData = Omit<Rental, 'id' | 'mainImage' | 'additionalImages'> & {
+type FormData = Omit<Rental, "id" | "mainImage" | "additionalImages"> & {
   mainImage: File | null;
   additionalImages: File[];
 };
@@ -71,8 +70,7 @@ const UpdateRental = () => {
     model: "",
     marque: "",
     automatique: false,
-    typeCars: "",
-    rentalType: "Hotel",
+    rentalType: "hotel",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,40 +79,41 @@ const UpdateRental = () => {
 
   useEffect(() => {
     if (sessionStatus === "authenticated" && session?.user?.id) {
-        fetchRental(id as string);
-        fetchAdditionalImages(id as string);
+      formData.rentalType = session?.user?.rental
+      fetchRental(id as string);
+      fetchAdditionalImages(id as string);
     } else if (sessionStatus === "unauthenticated") {
-        router.replace("/Locateur/Login");
+      router.replace("/Locateur/Login");
     }
-  }, [sessionStatus, session, id, router]);
+  }, [sessionStatus, session, id, router ]);
 
-const fetchRental = async (rentalId: string) => {
+  const fetchRental = async (rentalId: string) => {
     setIsLoading(true);
     try {
-        const response = await fetch(`/api/rental?rentalId=${rentalId}`);
+      const response = await fetch(`/api/rental?rentalId=${rentalId}`);
         if (!response.ok) throw new Error("Failed to fetch rental");
         const data = await response.json();
         setRental(data.rentals);
-        setFormData(prev => ({
-            ...prev,
-            ...data.rentals,
-            mainImage: null,
-            additionalImages: [],
+        setFormData((prev) => ({
+          ...prev,
+          ...data.rentals,
+          mainImage: null,
+          additionalImages: [],
         }));
     } catch (err) {
-        console.error(err);
+      console.error(err);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
-const fetchAdditionalImages = async (rentalId: string) => {
+  };
+  const fetchAdditionalImages = async (rentalId: string) => {
     try {
-        const response = await fetch(`/api/uploadimg?rentalId=${rentalId}`);
-        if (!response.ok) throw new Error("Failed to fetch additional images");
-        const data = await response.json();
-        setAdditionalImages(data.images);
+      const response = await fetch(`/api/uploadimg?rentalId=${rentalId}`);
+      if (!response.ok) throw new Error("Failed to fetch additional images");
+      const data = await response.json();
+      setAdditionalImages(data.images);
     } catch (err) {
-        console.error(err);
+      console.error(err);
     }
   };
 
@@ -122,18 +121,18 @@ const fetchAdditionalImages = async (rentalId: string) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleCheckboxChange = (name: keyof FormData) => {
-    setFormData(prev => ({ ...prev, [name]: !prev[name] }));
+    setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, mainImage: e.target.files![0] }));
-      setErrors(prev => ({ ...prev, mainImage: "" }));
+      setFormData((prev) => ({ ...prev, mainImage: e.target.files![0] }));
+      setErrors((prev) => ({ ...prev, mainImage: "" }));
     }
   };
 
@@ -141,7 +140,7 @@ const fetchAdditionalImages = async (rentalId: string) => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.files) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         additionalImages: [
           ...prev.additionalImages,
@@ -152,11 +151,11 @@ const fetchAdditionalImages = async (rentalId: string) => {
   };
 
   const removeMainImage = () => {
-    setFormData(prev => ({ ...prev, mainImage: null }));
+    setFormData((prev) => ({ ...prev, mainImage: null }));
   };
 
   const removeAdditionalImage = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       additionalImages: prev.additionalImages.filter((_, i) => i !== index),
     }));
@@ -183,7 +182,10 @@ const fetchAdditionalImages = async (rentalId: string) => {
       isValid = false;
     }
 
-    if (formData.rentalType === "Hotel" || formData.rentalType === "Apartment") {
+    if (
+      formData.rentalType === "Hotel" ||
+      formData.rentalType === "Apartment"
+    ) {
       if (!formData.address?.trim()) {
         newErrors.address = "Address is required";
         isValid = false;
@@ -203,10 +205,6 @@ const fetchAdditionalImages = async (rentalId: string) => {
         newErrors.marque = "Brand is required";
         isValid = false;
       }
-      if (!formData.typeCars?.trim()) {
-        newErrors.typeCars = "Car type is required";
-        isValid = false;
-      }
     }
 
     setErrors(newErrors);
@@ -224,27 +222,26 @@ const fetchAdditionalImages = async (rentalId: string) => {
       });
       if (!response.ok) throw new Error("Failed to delete rental");
     } catch (err) {
-      console.error(err )
+      console.error(err);
     }
   };
 
   const uploadImage = async () => {
     if (formData.additionalImages.length > 0) {
-      
-      handleDelete(id)
+      handleDelete(id);
       for (let i = 0; i < formData.additionalImages.length; i++) {
         const image = formData.additionalImages[i];
         const FD = new FormData();
         FD.append("image", image);
         FD.append("rentalId", id);
-       const res = await fetch("/api/uploadimg", {
+        const res = await fetch("/api/uploadimg", {
           method: "POST",
           body: FD,
         });
         if (!res.ok) {
           throw new Error("Failed to upload image");
         } else router.push("/Locateur");
-       /**/}
+      }
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -254,18 +251,8 @@ const fetchAdditionalImages = async (rentalId: string) => {
     }
     setIsSubmitting(true);
     try {
-
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        
-       /*if (key === "additionalImages") {
-          uploadImage();
-          (value as File[]).forEach((file, index) => {
-            data.append(`additionalImages[${index}]`, file);
-            //.log("file ",file)
-
-          });
-        }*/
         if (key === "mainImage" && value instanceof File) {
           data.append(key, value);
         } else if (value !== null && value !== undefined) {
@@ -273,19 +260,19 @@ const fetchAdditionalImages = async (rentalId: string) => {
         }
       });
 
-      console.log("all data",formData)
+      console.log("all data", formData);
 
       const response = await fetch(`/api/rental?rentalId=${id}`, {
         method: "PUT",
         body: data,
       });
       if (response.status == 200) {
-        console.log(formData.additionalImages)
+        console.log(formData.additionalImages);
         uploadImage();
-        //router.push("/Locateur");
+        router.push("/Locateur");
       } else {
         throw new Error("Failed to update rental");
-      }/**/
+      }
     } catch (error) {
       console.error("Error updating rental:", error);
     } finally {
@@ -294,19 +281,25 @@ const fetchAdditionalImages = async (rentalId: string) => {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (!rental) {
-    return <div className="flex justify-center items-center h-screen">Rental not found</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Rental not found
+      </div>
+    );
   }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>
-          Update {formData.rentalType}
-        </CardTitle>
+        <CardTitle>Update {formData.rentalType}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -316,7 +309,7 @@ const fetchAdditionalImages = async (rentalId: string) => {
               <Input
                 id="name"
                 name="name"
-                value={formData.name }
+                value={formData.name}
                 onChange={handleInputChange}
                 required
               />
@@ -344,7 +337,7 @@ const fetchAdditionalImages = async (rentalId: string) => {
             <Textarea
               id="description"
               name="description"
-              value={ formData.description}
+              value={formData.description}
               onChange={handleInputChange}
               required
             />
@@ -357,13 +350,13 @@ const fetchAdditionalImages = async (rentalId: string) => {
             {rental.mainImage && (
               <div className="relative w-full h-48 mb-2">
                 <Image
-                    src={`data:image/jpeg;base64,${Buffer.from(
-                      rental.mainImage
-                    ).toString("base64")}`}
+                  src={`data:image/jpeg;base64,${Buffer.from(
+                    rental.mainImage
+                  ).toString("base64")}`}
                   alt="Current main image"
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded-md"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-md"
                 />
               </div>
             )}
@@ -446,7 +439,9 @@ const fetchAdditionalImages = async (rentalId: string) => {
               />
               <Button
                 type="button"
-                onClick={() => document.getElementById("additionalImages")?.click()}
+                onClick={() =>
+                  document.getElementById("additionalImages")?.click()
+                }
                 className="w-full flex items-center justify-center"
               >
                 <Upload className="mr-2 h-4 w-4" /> Upload Additional Images
@@ -484,14 +479,15 @@ const fetchAdditionalImages = async (rentalId: string) => {
             />
             <Label htmlFor="disposability">Available</Label>
           </div>
-          {(formData.rentalType === "Hotel" || formData.rentalType === "Apartment") && (
+          {(formData.rentalType === "Hotel" ||
+            formData.rentalType === "Apartment") && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
                 <Input
                   id="address"
                   name="address"
-                  value={ formData.address}
+                  value={formData.address}
                   onChange={handleInputChange}
                   required
                 />
@@ -505,7 +501,7 @@ const fetchAdditionalImages = async (rentalId: string) => {
                   id="nbrChamber"
                   name="nbrChamber"
                   type="number"
-                  value={ formData.nbrChamber}
+                  value={formData.nbrChamber}
                   onChange={handleInputChange}
                   required
                 />
@@ -516,7 +512,6 @@ const fetchAdditionalImages = async (rentalId: string) => {
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
-                    
                     id="wifi"
                     checked={formData.wifi}
                     onCheckedChange={() => handleCheckboxChange("wifi")}
@@ -544,7 +539,9 @@ const fetchAdditionalImages = async (rentalId: string) => {
                     <Checkbox
                       id="restoration"
                       checked={formData.restoration}
-                      onCheckedChange={() => handleCheckboxChange("restoration")}
+                      onCheckedChange={() =>
+                        handleCheckboxChange("restoration")
+                      }
                     />
                     <Label htmlFor="restoration">Restaurant</Label>
                   </div>
@@ -589,19 +586,6 @@ const fetchAdditionalImages = async (rentalId: string) => {
                   onCheckedChange={() => handleCheckboxChange("automatique")}
                 />
                 <Label htmlFor="automatique">Automatic</Label>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="typeCars">Car Type</Label>
-                <Input
-                  id="typeCars"
-                  name="typeCars"
-                  value={formData.typeCars}
-                  onChange={handleInputChange}
-                  required
-                />
-                {errors.typeCars && (
-                  <p className="text-sm text-red-500">{errors.typeCars}</p>
-                )}
               </div>
             </>
           )}

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
     const { firstName ,lastName ,email ,birthday ,phoneNumber ,identifiant ,adress ,password , role ,rental} = await request.json();
+
     await connect();
     const existingClient = await Client.findOne({ email });
     if (existingClient) {
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     try {
         await newClient.save();
         return new NextResponse("Client is registered successfully", { status: 200 });
-    } catch (err: any) {
+    } catch (err: unknown) {
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }

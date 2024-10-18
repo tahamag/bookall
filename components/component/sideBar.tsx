@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Settings, HelpCircle, LogOut } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Home, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,12 +14,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 const sideBar = () => {
+  const router = useRouter();
+  const [idCLient, setIdCLient] = useState();
+  const [name, setName] = useState();
+  const [email, setEmail] = useState();
+  const { data: session, status: sessionStatus } = useSession();
+  useEffect(() => {
+    // Your code here will only run once, after the initial render and DOM mutations
+    if (sessionStatus === "authenticated") {
+      if (session?.user?.id) {
+        setIdCLient(session.user.id);
+        setName(session.user.name);
+        setEmail(session.user.email);
+      }
+    } else if (sessionStatus === "unauthenticated")
+      router.replace("/Locateur/Login");
+  }, [sessionStatus]);
+
   return (
     <div className="flex h-screen w-64 flex-col justify-between bg-gray-800 text-white">
       <div>
         <div className="p-4">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/Locateur" className="flex items-center space-x-2">
             <span className="text-xl font-bold">Locateur page</span>
           </Link>
         </div>
@@ -56,13 +76,6 @@ const sideBar = () => {
             <Settings className="h-5 w-5" />
             <span>Settings</span>
           </Link>
-          <Link
-            href="/help"
-            className="flex items-center space-x-2 rounded-lg px-2 py-1.5 hover:bg-gray-700"
-          >
-            <HelpCircle className="h-5 w-5" />
-            <span>Help</span>
-          </Link>
         </nav>
       </div>
       <div className="p-4">
@@ -72,12 +85,20 @@ const sideBar = () => {
               variant="ghost"
               className="w-full justify-start space-x-2 px-2 hover:bg-gray-700"
             >
-              <img
-                src="/placeholder.svg?height=32&width=32"
-                alt="User avatar"
-                className="h-8 w-8 rounded-full"
-              />
-              <span>John Doe</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5"
+              >
+                <circle cx="12" cy="7" r="4" />
+                <path d="M4 21v-4a8 8 0 1 1 16 0v4" />
+              </svg>
+              <span>{name}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -88,16 +109,16 @@ const sideBar = () => {
           >
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">John Doe</p>
+                <p className="text-sm font-medium leading-none">{name}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  john@example.com
+                  {email}
                 </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span onClick={() => signOut()}>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
