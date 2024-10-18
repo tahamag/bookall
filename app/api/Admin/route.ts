@@ -1,30 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connect from '@/utils/db';
 import Client from '@/models/client';
-//import { ObjectId } from 'mongodb';
-
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
-    const { firstName, lastName, phoneNumber, email, role, password } = await req.json();
-    await connect();
-
-    const newAdmin = new Client({
-        firstName,
-        lastName,
-        phoneNumber,
-        email,
-        password,
-        role: role || 'admin', 
-        adress: 'default',
-        identifiant: 'default',
-        birthday: new Date(),
-      });
     try {
+        const { firstName, lastName, phoneNumber, email, role, password } = await req.json();
+        await connect();
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const newAdmin = new Client({
+            firstName,
+            lastName,
+            phoneNumber,
+            email,
+            password: hashedPassword, 
+            role: role || 'admin', 
+            adress: 'default',
+            identifiant: 'default',
+            birthday: new Date(),
+        });
+
         await newAdmin.save();
-        return new NextResponse("Admin created successfully", { status: 200 });
+        return NextResponse.json({ message: "Admin created successfully" }, { status: 201 });
     } catch (err) {
+        console.error('Error creating admin:', err);
         return NextResponse.json(
-            { error: 'An unexpected error occurred' },
+            { error: 'An unexpected error occurred while creating the admin' },
             { status: 500 }
         );
     }
@@ -48,12 +52,10 @@ export async function GET(req: NextRequest) {
     await connect();
     console.log('Request received');
   
-    // Récupérer le paramètre "role" depuis les query params
     const { searchParams } = new URL(req.url);
     const role = searchParams.get('role');
   
     try {
-      // Filtrer les utilisateurs par rôle (admin ou locateur)
       const users = await Client.find(role ? { role } : {});
       console.log('Users found:', users);
   
@@ -62,7 +64,7 @@ export async function GET(req: NextRequest) {
       }
   
       return NextResponse.json(users, { status: 200 });
-    } catch (err) {
+    } catch (error) {
         console.error('Error fetching users by role:', error);
       return NextResponse.json(
         { error: `An unexpected error occurred while fetching users with role: ${role}` },
