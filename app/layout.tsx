@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Navrbar } from "@/components/component/navbar";
 import { Sliders } from "@/components/component/sliders";
 import { HotelSection } from "@/components/component/hotel-section";
 import { ApartementSection } from "@/components/component/apartement-section";

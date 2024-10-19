@@ -199,8 +199,7 @@ export default function EditUserPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="locateur">Locateur</SelectItem>
-                </SelectContent>
+                  </SelectContent>
               </Select>
             </div>
             {formData.role === 'locateur' && (
@@ -255,7 +254,7 @@ export default function EditUserPage() {
               />
             </div>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Update User'}
+              {loading ? 'Updating...' : 'Update Admin'}
             </Button>
           </form>
         </CardContent>

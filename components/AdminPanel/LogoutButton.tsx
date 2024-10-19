@@ -20,7 +20,7 @@ export function LogoutButton() {
         title: "Logged out successfully",
         description: "You have been logged out of your account.",
       })
-      router.push('/Admin/login') // Redirect to login page after logout
+      router.push('/Admin/login') 
     } catch (error) {
       console.error('Logout failed:', error)
       toast({

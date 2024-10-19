@@ -40,11 +40,6 @@ const dashboard = () => {
       router.replace("/Locateur/Login");
   }, [sessionStatus]);
 
-/*
-  useEffect(() => {
-    fetchRentals();
-  }, []);*/
-
   const fetchRentals = async (idClient:string) => {
     try {
       //const response = await fetch("/api/rental");

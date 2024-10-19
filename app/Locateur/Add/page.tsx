@@ -67,11 +67,6 @@ export default function Add() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  /*
-    if (sessionStatus === 'authenticated')
-        var v= 1
-    else
-        router.replace("/Locateur/Login");*/
 
   useEffect(() => {
     if (session?.user?.rental) {

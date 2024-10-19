@@ -5,7 +5,27 @@ import bcrypt from "bcryptjs";
 import Client from "@/models/client";
 import connect from "@/utils/db";
 
-export const authOptions: any = {
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      rental: string;
+      role: string; // Add the role property here
+    } & DefaultSession["user"]; 
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    rental: string;
+    role: string; 
+  }
+} 
+export const authOptions: NextAuthOptions = {
+  
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
@@ -62,7 +82,7 @@ export const authOptions: any = {
         session.user.email = token.email;
         session.user.name = token.name;
         session.user.rental = token.rental;
-        session.user.role = token.role;
+        session.user.role = token.role as string;
       }
       return session;
     },
