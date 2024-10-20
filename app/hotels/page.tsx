@@ -78,15 +78,14 @@ const hotels = () => {
     };
     const applyFilters = () => {
 
-        //alert(rooms)
         const filtered = hotels.filter(hotel =>
             hotel.price >= priceRange[0] &&
             hotel.price <= priceRange[1] &&
             hotel.nbrChamber >= rooms &&
-            (hotel.wifi) /*&&
-            (!parking || hotel.parking) &&
-            (!pool || hotel.piscine) &&
-            (!restaurant || hotel.restoration)*/
+            (wifi) &&
+            (parking ) &&
+            (pool ) &&
+            (restaurant )/**/
 
         )
        // const filtered = hotels;
