@@ -1,12 +1,25 @@
-import { getServerSession } from 'next-auth';
-import React from 'react'
-import { authOptions } from '../api/auth/[...nextauth]/route';
+'use client';
+//import React, { useEffect } from 'react';
+//import { useSession } from "next-auth/react";
+//import { useRouter } from 'next/navigation';
 
-async function AdminPage() {
-  const session = await getServerSession(authOptions)
-  if(session.user.role !== admin)
-  {
-    return(
+export default function AdminPage() {
+  /*
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+
+  useEffect(() => {
+    if (sessionStatus === "authenticated") {
+      if (session?.user?.role === "admin") {
+        router.replace("/Admin"); 
+      }
+    } else if (sessionStatus === "unauthenticated") {
+      router.replace("/Admin/login"); 
+    }
+  }, [sessionStatus, session, router]);
+
+  if (sessionStatus === "authenticated" && session?.user?.role !== "admin") {
+    return (
       <section className='py-24'>
         <div className='container'>
           <h1 className='text-2xl font-bold'>
@@ -14,11 +27,12 @@ async function AdminPage() {
           </h1>
         </div>
       </section>
-    )
+    );
   }
+*/
+    
   return (
     <div> Home Page </div>
   )
 }
 
-export default AdminPage;

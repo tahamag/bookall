@@ -40,7 +40,10 @@ const dashboard = () => {
       router.replace("/Locateur/Login");
   }, [sessionStatus]);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 92f8bb146ad0e95f7226a8e8883e7b2d3e64fb81
   const fetchRentals = async (idClient:string) => {
     try {
       const response = await fetch(`/api/rental?idClient=${idClient}`)
