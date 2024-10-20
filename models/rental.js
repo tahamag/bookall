@@ -66,6 +66,10 @@ const rentalSchema = new Schema(
         idClient : {
             type : String,
             required : true
+        },
+        rentalType : {
+            type : String,
+            required : true
         }
     },
     {timestamps : true}

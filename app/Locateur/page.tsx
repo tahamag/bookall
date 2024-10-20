@@ -29,8 +29,8 @@ const dashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
+
   useEffect(() => {
-    // Your code here will only run once, after the initial render and DOM mutations
     if (sessionStatus === "authenticated") {
       if (session?.user?.id) {
         setIdCLient(session.user.id);
@@ -40,15 +40,9 @@ const dashboard = () => {
       router.replace("/Locateur/Login");
   }, [sessionStatus]);
 
-/*
-  useEffect(() => {
-    fetchRentals();
-  }, []);*/
 
   const fetchRentals = async (idClient:string) => {
     try {
-      //const response = await fetch("/api/rental");
-      //console.log(idClient)
       const response = await fetch(`/api/rental?idClient=${idClient}`)
       if (!response.ok) throw new Error("Failed to fetch rentals");
       else {
@@ -98,7 +92,7 @@ const dashboard = () => {
     <div className="flex flex-row">
       <SideBar></SideBar>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Rental liste</h1>
+        <h1 className="text-2xl font-bold mb-4">Rental list</h1>
         <Table>
           <TableHeader>
             <TableRow>
