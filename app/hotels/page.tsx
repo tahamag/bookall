@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 type Rental = {
   _id: string;
@@ -303,66 +304,74 @@ const hotels = () => {
                 No hotels found. Please try different search criteria.
               </span>
             ) : (
-              <span className="loading loading-ring loading-lg w-1/2 ml-1/4">
+                <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
                 {filteredHotels.map((hotel) => (
-                  <span className="loading loading-bars loading-lg w-1/2 ml-1/4">
-                    <Card className="overflow-hidden">
-                      <img
-                        src={`data:image/jpeg;base64,${Buffer.from(
-                          hotel.mainImage
-                        ).toString("base64")}`}
-                        alt={hotel.name}
-                        className="w-full h-48 object-cover"
-                      />
-                      <CardHeader>
-                        <CardTitle>{hotel.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-2xl font-bold">
-                          ${hotel.price}/night
-                        </p>
-                        <span className="flex items-center space-x-2">
-                          {hotel.wifi && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                              alt="wifi-logo"
-                            />
-                          )}
-                          {hotel.parking && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/fluency/28/parking.png"
-                              alt="parking"
-                            />
-                          )}
-                          {hotel.piscine && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                              alt="outdoor-swimming-pool"
-                            />
-                          )}
-                          {hotel.restoration && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/3d-fluency/94/restaurant.png"
-                              alt="restaurant"
-                            />
-                          )}
-                        </span>
-                      </CardContent>
-                      <CardFooter>
-                        <Button className="w-full">Check In</Button>
-                      </CardFooter>
-                    </Card>
-                  </span>
+                    <motion.div
+                        key={hotel._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Link href={`/hotels/${hotel._id}`}>
+                            <Card className="overflow-hidden">
+                                <img
+                                    src={`data:image/jpeg;base64,${Buffer.from(hotel.mainImage).toString("base64")}`}
+                                    alt={hotel.name}
+                                    className="w-full h-48 object-cover"
+                                />
+                                <CardHeader>
+                                    <CardTitle>{hotel.name}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-2xl font-bold">${hotel.price}/night</p>
+                                    <span className="flex items-center space-x-2">
+                                        {hotel.wifi && (
+                                            <img
+                                            width="28"
+                                            height="28"
+                                            src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                            alt="wifi-logo"
+                                            />
+                                        )}
+                                        {hotel.parking && (
+                                            <img
+                                            width="28"
+                                            height="28"
+                                            src="https://img.icons8.com/fluency/28/parking.png"
+                                            alt="parking"
+                                            />
+                                        )}
+                                        {hotel.piscine && (
+                                            <img
+                                            width="28"
+                                            height="28"
+                                            src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                            alt="outdoor-swimming-pool"
+                                            />
+                                        )}
+                                        {hotel.restoration && (
+                                            <img
+                                            width="28"
+                                            height="28"
+                                            src="https://img.icons8.com/3d-fluency/94/restaurant.png"
+                                            alt="restaurant"
+                                            />
+                                        )}
+                                    </span>
+                                </CardContent>
+                                <CardFooter>
+                                    <Button className="w-full">Check In</Button>
+                                </CardFooter>
+                            </Card>
+                        </Link>
+                    </motion.div>
                 ))}
-              </span>
+            </motion.div>
             )}
           </div>
         </div>
