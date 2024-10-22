@@ -16,6 +16,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Rental = {
   _id: string;
@@ -77,42 +78,44 @@ export function CarSection() {
                   className="md:basis-1/2 lg:basis-1/3"
                 >
                   <div className="p-1">
-                    <Card>
-                      <CardContent className="flex flex-col items-center p-6">
-                        <div className="relative w-full h-48 mb-4">
-                          <img
-                            src={`data:image/jpeg;base64,${Buffer.from(
-                              car.mainImage
-                            ).toString("base64")}`}
-                            alt={car.name}
-                            className="rounded-md object-cover"
-                          />
-                        </div>
-                      </CardContent>
-
-                      <br />
-                      <CardHeader>
-                        <CardTitle>{car.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-2xl font-bold">${car.price}/night</p>
-                        <span className="flex items-center space-x-2">
-                          {car.automatique ? (
+                    <Link href={`/cars/${car._id}`}>
+                      <Card>
+                        <CardContent className="flex flex-col items-center p-6">
+                          <div className="relative w-full h-48 mb-4">
                             <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/pastel-glyph/64/gearbox.png"
-                              alt="gearbox"
+                              src={`data:image/jpeg;base64,${Buffer.from(
+                                car.mainImage
+                              ).toString("base64")}`}
+                              alt={car.name}
+                              className="rounded-md object-cover"
                             />
-                          ) : (
-                            <br />
-                          )}
-                        </span>
-                      </CardContent>
-                      <CardFooter>
-                        <Button className="w-full">Book Now</Button>
-                      </CardFooter>
-                    </Card>
+                          </div>
+                        </CardContent>
+
+                        <br />
+                        <CardHeader>
+                          <CardTitle>{car.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-2xl font-bold">${car.price}/night</p>
+                          <span className="flex items-center space-x-2">
+                            {car.automatique ? (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/pastel-glyph/64/gearbox.png"
+                                alt="gearbox"
+                              />
+                            ) : (
+                              <br />
+                            )}
+                          </span>
+                        </CardContent>
+                        <CardFooter>
+                          <Button className="w-full">Book Now</Button>
+                        </CardFooter>
+                      </Card>
+                    </Link>
                   </div>
                 </CarouselItem>
               ))}

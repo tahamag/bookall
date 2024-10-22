@@ -40,7 +40,8 @@ export async function POST(request: Request) {
                 wifi,
                 parking,
                 piscine,
-                idClient
+                idClient,
+                rentalType
             });
         else{
             const restoration = data.get('restoration');
@@ -57,7 +58,8 @@ export async function POST(request: Request) {
                 parking,
                 piscine,
                 restoration,
-                idClient
+                idClient,
+                rentalType
             });
         }
     }
@@ -79,7 +81,8 @@ export async function POST(request: Request) {
             marque,
             automatique,
             typeCars,
-            idClient
+            idClient,
+            rentalType
         });
     }
 
@@ -106,9 +109,10 @@ export async function GET(req: NextApiRequest) {
         const { searchParams } = new URL(req.url)
         const idClient = searchParams.get('idClient')?? null;
         const rentalId = searchParams.get('rentalId')?? null;
-        
+        const rentalType = searchParams.get('rentalType')?? null;
+
         await connect();
-        
+
         if (idClient != null) {
             rentals = await Rental.find({ idClient: new ObjectId(idClient) });
         } else if (rentalId != null) {
@@ -116,13 +120,10 @@ export async function GET(req: NextApiRequest) {
         } else {
             rentals = await Rental.find();
         }
-<<<<<<< HEAD
         if( rentalType != null && rentalId != null){
             rentals = await Rental.find({rentalType:  rentalType , disposability : true ,_id: { $ne: new ObjectId(rentalId) }}).limit(8);
-        }
-=======
-     
->>>>>>> fc21b8c93395e1eccb57b3c06fc724c35a0b0da8
+        
+        console.log(rentals)}
         return NextResponse.json(
             { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }

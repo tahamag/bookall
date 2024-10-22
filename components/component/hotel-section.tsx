@@ -16,6 +16,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+
 
 type Rental = {
   _id: string;
@@ -82,65 +84,67 @@ export function HotelSection() {
                   className="md:basis-1/2 lg:basis-1/3"
                 >
                   <div className="p-1">
-                    <Card>
-                      <CardContent className="flex flex-col items-center p-6">
-                        <div className="relative w-full h-48 mb-4">
-                          <img
-                            src={`data:image/jpeg;base64,${Buffer.from(
-                              hotel.mainImage
-                            ).toString("base64")}`}
-                            alt={hotel.name}
-                            className="rounded-md object-cover"
-                          />
-                        </div>
-                      </CardContent>
-
-                      <CardHeader>
-                        <CardTitle>{hotel.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-2xl font-bold">
-                          ${hotel.price}/night
-                        </p>
-                        <span className="flex items-center space-x-2">
-                          {hotel.wifi && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                              alt="wifi-logo"
-                            />
-                          )}
-                          {hotel.parking && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/fluency/28/parking.png"
-                              alt="parking"
-                            />
-                          )}
-                          {hotel.piscine && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                              alt="outdoor-swimming-pool"
-                            />
-                          )}
-                          {hotel.restoration && (
-                            <img
-                              width="28"
-                              height="28"
-                              src="https://img.icons8.com/3d-fluency/94/restaurant.png"
-                              alt="restaurant"
-                            />
-                          )}
-                        </span>
-                      </CardContent>
-                      <CardFooter>
-                        <Button className="w-full">Book Now</Button>
-                      </CardFooter>
-                    </Card>
+                    <Link href={`/hotels/${hotel._id}`}>
+                        <Card>
+                          <CardContent className="flex flex-col items-center p-6">
+                            <div className="relative w-full h-48 mb-4">
+                              <img
+                                src={`data:image/jpeg;base64,${Buffer.from(
+                                  hotel.mainImage
+                                ).toString("base64")}`}
+                                alt={hotel.name}
+                                className="rounded-md object-cover"
+                              />
+                            </div>
+                          </CardContent>
+                          <br />
+                          <CardHeader>
+                            <CardTitle>{hotel.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-2xl font-bold">
+                              ${hotel.price}/night
+                            </p>
+                            <span className="flex items-center space-x-2">
+                              {hotel.wifi && (
+                                <img
+                                  width="28"
+                                  height="28"
+                                  src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                  alt="wifi-logo"
+                                />
+                              )}
+                              {hotel.parking && (
+                                <img
+                                  width="28"
+                                  height="28"
+                                  src="https://img.icons8.com/fluency/28/parking.png"
+                                  alt="parking"
+                                />
+                              )}
+                              {hotel.piscine && (
+                                <img
+                                  width="28"
+                                  height="28"
+                                  src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                  alt="outdoor-swimming-pool"
+                                />
+                              )}
+                              {hotel.restoration && (
+                                <img
+                                  width="28"
+                                  height="28"
+                                  src="https://img.icons8.com/3d-fluency/94/restaurant.png"
+                                  alt="restaurant"
+                                />
+                              )}
+                            </span>
+                          </CardContent>
+                          <CardFooter>
+                            <Button className="w-full">Book Now</Button>
+                          </CardFooter>
+                        </Card>
+                      </Link>
                   </div>
                 </CarouselItem>
               ))}
