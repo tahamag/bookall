@@ -109,7 +109,7 @@ export default function ClientBookings() {
             </CardHeader>
             <CardContent>
               <Image
-                src={rental.image} 
+                src={`data:image/jpeg;base64,${Buffer.from(rental.mainImage).toString("base64")}`}
                 alt={rental.name} 
                 className="w-full h-40 object-cover rounded-md mb-4"
                 height={800}
