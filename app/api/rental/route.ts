@@ -40,8 +40,7 @@ export async function POST(request: Request) {
                 wifi,
                 parking,
                 piscine,
-                idClient,
-                rentalType
+                idClient
             });
         else{
             const restoration = data.get('restoration');
@@ -58,8 +57,7 @@ export async function POST(request: Request) {
                 parking,
                 piscine,
                 restoration,
-                idClient,
-                rentalType
+                idClient
             });
         }
     }
@@ -81,8 +79,7 @@ export async function POST(request: Request) {
             marque,
             automatique,
             typeCars,
-            idClient,
-            rentalType
+            idClient
         });
     }
 
@@ -106,22 +103,7 @@ export async function POST(request: Request) {
 export async function GET(req: NextApiRequest) {
     try {
         let rentals;
-            // rooms priceRange wifi parking pool restaurant location
         const { searchParams } = new URL(req.url)
-<<<<<<< HEAD
-        const idClient = searchParams.get('idClient')?? null ;
-        const rentalId = searchParams.get('rentalId')?? null ;
-        const rentalType = searchParams.get('rentalType')?? null ;
-        await connect();
-        if(idClient != null)
-            rentals = await Rental.find({idClient:  new ObjectId(idClient)});
-        if(rentalId != null)
-            rentals = await Rental.findOne({_id:  new ObjectId(rentalId)});
-        if(rentalType != null){
-            rentals = await Rental.find({rentalType:  rentalType , disposability : true });
-        }
-
-=======
         const idClient = searchParams.get('idClient')?? null;
         const rentalId = searchParams.get('rentalId')?? null;
         
@@ -135,7 +117,6 @@ export async function GET(req: NextApiRequest) {
             rentals = await Rental.find();
         }
      
->>>>>>> 6f28745 (gestion locateur et location)
         return NextResponse.json(
             { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }
