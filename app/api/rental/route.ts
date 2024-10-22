@@ -120,7 +120,9 @@ export async function GET(req: NextApiRequest) {
         if(rentalType != null){
             rentals = await Rental.find({rentalType:  rentalType , disposability : true });
         }
-
+        if( rentalType != null && rentalId != null){
+            rentals = await Rental.find({rentalType:  rentalType , disposability : true ,_id: { $ne: new ObjectId(rentalId) }}).limit(8);
+        }
         return NextResponse.json(
             { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }

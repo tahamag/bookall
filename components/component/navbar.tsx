@@ -9,8 +9,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 const navItems = [
   { name: "Home", href: "/" },
   { name: "Hotel", href: "/hotels" },
-  { name: "Apartment", href: "/apartment" },
-  { name: "Car", href: "/car" },
+  { name: "Apartment", href: "/apartments" },
+  { name: "Car", href: "/cars" },
   { name: "About", href: "/about" },
   { name: "Contact Us", href: "/contact" },
 ];

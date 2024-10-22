@@ -17,40 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// Mock data for similar hotels
-const similarHotels = [
-  {
-    id: "2",
-    name: "Seaside Retreat",
-    price: 280,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "3",
-    name: "Mountain View Lodge",
-    price: 320,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "4",
-    name: "Urban Oasis Hotel",
-    price: 250,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "5",
-    name: "Riverside Inn",
-    price: 200,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "6",
-    name: "Beachfront Paradise",
-    price: 400,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-];
-
 type Rental = {
   id: string;
   name: string;
@@ -86,7 +52,7 @@ const hotelDetails = () => {
   useEffect(() => {
     fetchRental(id as string);
     fetchAdditionalImages(id as string);
-    fetchRentalSimilar("Hotel", id as string);
+    fetchRentalSimilar("Car", id as string);
   }, [id]);
 
   const handlePrevImage = () => {
@@ -238,79 +204,76 @@ const hotelDetails = () => {
           )}
         </div>
 
-        {/* Similar Hotels Slider */}
+        {/* Similar Car Slider */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Similar Hotels</h2>
+          <h2 className="text-2xl font-bold mb-6">Similar Car</h2>
           <div className="relative">
             <div className="overflow-x-auto pb-4">
-            {IsLoadingSimilar ? (
-              <span className="loading loading-ring loading-lg w-1/4 ml-1/4"></span>
-            ) : !Array.isArray(rentalSimilar) || rentalSimilar.length === 0 ? (
-              <span className="loading loading-ring loading-lg w-1/4 ml-1/4">
-                No hotels found. Please try different search criteria.
-              </span>
-            ) : (
+              {IsLoadingSimilar ? (
+                <span className="loading loading-ring loading-lg w-1/4 ml-1/4"></span>
+              ) : !Array.isArray(rentalSimilar) ||
+                rentalSimilar.length === 0 ? (
+                <span className="loading loading-ring loading-lg w-1/4 ml-1/4">
+                  No Car found. Please try different search criteria.
+                </span>
+              ) : (
                 <div className="flex gap-6">
-                    {rentalSimilar.map((rental) => (
-                        <Link href={`/hotels/${rental._id}`}>
-                            <Card key={rental._id} className="w-64 flex-shrink-0">
-                                <img
-                                src={`data:image/jpeg;base64,${Buffer.from(
-                                    rental.mainImage
-                                ).toString("base64")}`}
-                                alt={rental.name}
-                                className="w-full h-40 object-cover rounded-t-lg"
-                                />
-                                <CardHeader>
-                                <CardTitle className="text-lg">{rental.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                <p className="font-semibold">${rental.price} / night</p>
-                                <span className="flex items-center space-x-2">
-                                    {rental.wifi && (
-                                        <img
-                                        width="28"
-                                        height="28"
-                                        src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                                        alt="wifi-logo"
-                                        />
-                                    )}
-                                    {rental.parking && (
-                                        <img
-                                        width="28"
-                                        height="28"
-                                        src="https://img.icons8.com/fluency/28/parking.png"
-                                        alt="parking"
-                                        />
-                                    )}
-                                    {rental.piscine && (
-                                        <img
-                                        width="28"
-                                        height="28"
-                                        src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                                        alt="outdoor-swimming-pool"
-                                        />
-                                    )}
-                                    {rental.restoration && (
-                                        <img
-                                        width="28"
-                                        height="28"
-                                        src="https://img.icons8.com/3d-fluency/94/restaurant.png"
-                                        alt="restaurant"
-                                        />
-                                    )}
-                                </span>
-                                </CardContent>
-                                <CardFooter>
-                                <Button variant="outline" className="w-full">
-                                    View Details
-                                </Button>
-                                </CardFooter>
-                            </Card>
-                        </Link>
-                    ))}
+                  {rentalSimilar.map((rental) => (
+                    <Link href={`/cars/${rental._id}`}>
+                      <Card key={rental._id} className="w-64 flex-shrink-0">
+                        <img
+                          src={`data:image/jpeg;base64,${Buffer.from(
+                            rental.mainImage
+                          ).toString("base64")}`}
+                          alt={rental.name}
+                          className="w-full h-40 object-cover rounded-t-lg"
+                        />
+                        <CardHeader>
+                          <CardTitle className="text-lg">
+                            {rental.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="font-semibold">
+                            ${rental.price} / night
+                          </p>
+                          <span className="flex items-center space-x-2">
+                            {rental.wifi && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                alt="wifi-logo"
+                              />
+                            )}
+                            {rental.parking && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/28/parking.png"
+                                alt="parking"
+                              />
+                            )}
+                            {rental.piscine && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                alt="outdoor-swimming-pool"
+                              />
+                            )}
+                          </span>
+                        </CardContent>
+                        <CardFooter>
+                          <Button variant="outline" className="w-full">
+                            View Details
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </Link>
+                  ))}
                 </div>
-            )}
+              )}
             </div>
           </div>
         </div>
