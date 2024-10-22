@@ -52,6 +52,10 @@ const ClientSchema = new Schema(
         return this.role !== "admin";
       },
     },
+    isValidated: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );

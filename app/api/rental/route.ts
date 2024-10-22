@@ -17,10 +17,10 @@ export async function POST(request: Request) {
     const city = data.get('city');
     const disposability = data.get('disposability');
     const file: File | null = data.get('mainImage') as unknown as File ;
-
+   
     const bytes = await file.arrayBuffer()
     const mainImage = Buffer.from(bytes)
-
+   
     if(rentalType === 'Hotel' || rentalType === 'Apartment'){
         const address = data.get('address');
         const nbrChamber = data.get('nbrChamber');
@@ -103,12 +103,12 @@ export async function POST(request: Request) {
     }
 }
 
-
 export async function GET(req: NextApiRequest) {
     try {
         let rentals;
             // rooms priceRange wifi parking pool restaurant location
         const { searchParams } = new URL(req.url)
+<<<<<<< HEAD
         const idClient = searchParams.get('idClient')?? null ;
         const rentalId = searchParams.get('rentalId')?? null ;
         const rentalType = searchParams.get('rentalType')?? null ;
@@ -121,18 +121,34 @@ export async function GET(req: NextApiRequest) {
             rentals = await Rental.find({rentalType:  rentalType , disposability : true });
         }
 
+=======
+        const idClient = searchParams.get('idClient')?? null;
+        const rentalId = searchParams.get('rentalId')?? null;
+        
+        await connect();
+        
+        if (idClient != null) {
+            rentals = await Rental.find({ idClient: new ObjectId(idClient) });
+        } else if (rentalId != null) {
+            rentals = await Rental.findOne({ _id: new ObjectId(rentalId) });
+        } else {
+            rentals = await Rental.find();
+        }
+     
+>>>>>>> 6f28745 (gestion locateur et location)
         return NextResponse.json(
             { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }
-        )
+        );
     } catch (error) {
         console.error(error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }
-        )
+        );
     }
 }
+
 
 export async function DELETE(request: Request) {
     await connect();

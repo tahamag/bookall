@@ -19,7 +19,11 @@ interface AdminFormData {
 
     
 export default function AddAdminPage() {
-  
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<AdminFormData>>({});
+  const [apiError, setApiError] = useState('');
+
   const [formData, setFormData] = useState<AdminFormData>({
     firstName: '',
     lastName: '', 
@@ -27,9 +31,23 @@ export default function AddAdminPage() {
     email: '',
     role: 'admin', 
     password: '',
-  })
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  
+  const validateForm = (): boolean => {
+    const newErrors: Partial<AdminFormData> = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
+    else if (!/^\d+$/.test(formData.phoneNumber)) newErrors.phoneNumber = 'Phone number is invalid';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password.trim()) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+}
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -42,7 +60,13 @@ export default function AddAdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true)
+    setApiError(''); 
+
+    if (!validateForm()) {
+        setIsLoading(false);
+        return; 
+    }
+
     if(!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.email 
       || !formData.password) { 
         alert('required')
@@ -95,7 +119,9 @@ export default function AddAdminPage() {
                 onChange={handleInputChange}
                 placeholder='Enter your first name'
                 required
+                className={errors.firstName ? "border-red-500" : ""}
               />
+              {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
@@ -106,7 +132,9 @@ export default function AddAdminPage() {
                 onChange={handleInputChange}
                 placeholder='Enter your last name'
                 required
+                className={errors.lastName ? "border-red-500" : ""}
               />
+              {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
@@ -117,7 +145,9 @@ export default function AddAdminPage() {
                 onChange={handleInputChange}
                 placeholder='Enter your phone number'
                 required
+                className={errors.phoneNumber ? "border-red-500" : ""}
               />
+              {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -129,7 +159,9 @@ export default function AddAdminPage() {
                 onChange={handleInputChange}
                 placeholder='Enter your email'
                 required
+                className={errors.email ? "border-red-500" : ""}
               />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
@@ -152,10 +184,12 @@ export default function AddAdminPage() {
                 onChange={handleInputChange}
                 placeholder='Enter your password'
                 required
+                className={errors.password ? "border-red-500" : ""}
               />
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
             </div>
             <Button type="submit" onClick={handleSubmit} className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Admin'}
+              {isLoading ? 'Creating...' : 'Create Administrator'}
             </Button>
           </form>
         </CardContent>
