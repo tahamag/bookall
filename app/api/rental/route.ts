@@ -17,10 +17,10 @@ export async function POST(request: Request) {
     const city = data.get('city');
     const disposability = data.get('disposability');
     const file: File | null = data.get('mainImage') as unknown as File ;
-
+   
     const bytes = await file.arrayBuffer()
     const mainImage = Buffer.from(bytes)
-
+   
     if(rentalType === 'Hotel' || rentalType === 'Apartment'){
         const address = data.get('address');
         const nbrChamber = data.get('nbrChamber');
@@ -40,8 +40,7 @@ export async function POST(request: Request) {
                 wifi,
                 parking,
                 piscine,
-                idClient,
-                rentalType
+                idClient
             });
         else{
             const restoration = data.get('restoration');
@@ -58,8 +57,7 @@ export async function POST(request: Request) {
                 parking,
                 piscine,
                 restoration,
-                idClient,
-                rentalType
+                idClient
             });
         }
     }
@@ -81,8 +79,7 @@ export async function POST(request: Request) {
             marque,
             automatique,
             typeCars,
-            idClient,
-            rentalType
+            idClient
         });
     }
 
@@ -103,38 +100,42 @@ export async function POST(request: Request) {
     }
 }
 
-
 export async function GET(req: NextApiRequest) {
     try {
         let rentals;
-            // rooms priceRange wifi parking pool restaurant location
         const { searchParams } = new URL(req.url)
-        const idClient = searchParams.get('idClient')?? null ;
-        const rentalId = searchParams.get('rentalId')?? null ;
-        const rentalType = searchParams.get('rentalType')?? null ;
+        const idClient = searchParams.get('idClient')?? null;
+        const rentalId = searchParams.get('rentalId')?? null;
+        
         await connect();
-        if(idClient != null)
-            rentals = await Rental.find({idClient:  new ObjectId(idClient)});
-        if(rentalId != null)
-            rentals = await Rental.findOne({_id:  new ObjectId(rentalId)});
-        if(rentalType != null){
-            rentals = await Rental.find({rentalType:  rentalType , disposability : true });
+        
+        if (idClient != null) {
+            rentals = await Rental.find({ idClient: new ObjectId(idClient) });
+        } else if (rentalId != null) {
+            rentals = await Rental.findOne({ _id: new ObjectId(rentalId) });
+        } else {
+            rentals = await Rental.find();
         }
+<<<<<<< HEAD
         if( rentalType != null && rentalId != null){
             rentals = await Rental.find({rentalType:  rentalType , disposability : true ,_id: { $ne: new ObjectId(rentalId) }}).limit(8);
         }
+=======
+     
+>>>>>>> fc21b8c93395e1eccb57b3c06fc724c35a0b0da8
         return NextResponse.json(
             { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }
-        )
+        );
     } catch (error) {
         console.error(error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }
-        )
+        );
     }
 }
+
 
 export async function DELETE(request: Request) {
     await connect();

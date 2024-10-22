@@ -13,7 +13,7 @@ export function LogoutButton() {
   const { toast } = useToast()
 
   const handleLogout = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       await signOut({ redirect: false })
       toast({

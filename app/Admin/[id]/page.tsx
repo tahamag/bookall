@@ -146,7 +146,7 @@ export default function EditUserPage() {
     <div className="container mx-auto py-10">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Edit User</CardTitle>
+          <CardTitle className="text-2xl font-bold">Edit Administrator</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -254,7 +254,7 @@ export default function EditUserPage() {
               />
             </div>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Update Admin'}
+              {loading ? 'Updating...' : 'Update Administrator'}
             </Button>
           </form>
         </CardContent>
