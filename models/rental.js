@@ -71,7 +71,7 @@ const rentalSchema = new Schema(
             type : String,
             required : true
         },
-        isValid: {
+        isValidated: {
             type: Boolean,
             default : false
         }

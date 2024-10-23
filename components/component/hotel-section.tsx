@@ -18,7 +18,6 @@ import {
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-
 type Rental = {
   _id: string;
   name: string;
@@ -51,9 +50,7 @@ export function HotelSection() {
       else {
         const data = await response.json();
         const validItems = data.rentals.filter(
-          (hotel) =>
-            hotel.disposability === false
-            && hotel.isValid === true
+          (hotel) => hotel.disposability === true && hotel.isValidated === true
         );
         const Data = validItems.slice(0, 8);
         setHotels(Array.isArray(Data) ? Data : []);
@@ -71,7 +68,7 @@ export function HotelSection() {
         {loading ? (
           <span className="loading loading-ring loading-lg w-1/4 ml-1/4 ml-[37%]"></span>
         ) : !Array.isArray(hotels) || hotels.length === 0 ? (
-          <span className="loading loading-ring loading-lg w-1/4 ml-1/4 ml-[37%]">
+          <span className="w-1/4 ml-1/4 ml-[37%]">
             No hotels found. Please try different search criteria.
           </span>
         ) : (
@@ -90,66 +87,66 @@ export function HotelSection() {
                 >
                   <div className="p-1">
                     <Link href={`/hotels/${hotel._id}`}>
-                        <Card>
-                          <CardContent className="flex flex-col items-center p-6">
-                            <div className="relative w-full h-48 mb-4">
+                      <Card>
+                        <CardContent className="flex flex-col items-center p-6">
+                          <div className="relative w-full h-48 mb-4">
+                            <img
+                              src={`data:image/jpeg;base64,${Buffer.from(
+                                hotel.mainImage
+                              ).toString("base64")}`}
+                              alt={hotel.name}
+                              className="rounded-md object-cover"
+                            />
+                          </div>
+                        </CardContent>
+                        <br />
+                        <CardHeader>
+                          <CardTitle>{hotel.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-2xl font-bold">
+                            ${hotel.price}/night
+                          </p>
+                          <span className="flex items-center space-x-2">
+                            {hotel.wifi && (
                               <img
-                                src={`data:image/jpeg;base64,${Buffer.from(
-                                  hotel.mainImage
-                                ).toString("base64")}`}
-                                alt={hotel.name}
-                                className="rounded-md object-cover"
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                alt="wifi-logo"
                               />
-                            </div>
-                          </CardContent>
-                          <br />
-                          <CardHeader>
-                            <CardTitle>{hotel.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-2xl font-bold">
-                              ${hotel.price}/night
-                            </p>
-                            <span className="flex items-center space-x-2">
-                              {hotel.wifi && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                                  alt="wifi-logo"
-                                />
-                              )}
-                              {hotel.parking && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/fluency/28/parking.png"
-                                  alt="parking"
-                                />
-                              )}
-                              {hotel.piscine && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                                  alt="outdoor-swimming-pool"
-                                />
-                              )}
-                              {hotel.restoration && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/3d-fluency/94/restaurant.png"
-                                  alt="restaurant"
-                                />
-                              )}
-                            </span>
-                          </CardContent>
-                          <CardFooter>
-                            <Button className="w-full">Book Now</Button>
-                          </CardFooter>
-                        </Card>
-                      </Link>
+                            )}
+                            {hotel.parking && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/28/parking.png"
+                                alt="parking"
+                              />
+                            )}
+                            {hotel.piscine && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                alt="outdoor-swimming-pool"
+                              />
+                            )}
+                            {hotel.restoration && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/3d-fluency/94/restaurant.png"
+                                alt="restaurant"
+                              />
+                            )}
+                          </span>
+                        </CardContent>
+                        <CardFooter>
+                          <Button className="w-full">Book Now</Button>
+                        </CardFooter>
+                      </Card>
+                    </Link>
                   </div>
                 </CarouselItem>
               ))}

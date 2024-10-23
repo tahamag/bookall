@@ -50,8 +50,7 @@ export function ApartmentSection() {
         const data = await response.json();
         const validItems = data.rentals.filter(
           (Apartment) =>
-            Apartment.disposability === false
-            && Apartment.isValid === true
+            Apartment.disposability === true && Apartment.isValidated === true
         );
         const Data = validItems.slice(0, 8);
         setApartment(Array.isArray(Data) ? Data : []);
@@ -70,7 +69,7 @@ export function ApartmentSection() {
         {loading ? (
           <span className="loading loading-ring loading-lg w-1/4 ml-1/4 ml-[37%]"></span>
         ) : !Array.isArray(apartments) || apartments.length === 0 ? (
-          <span className="loading loading-ring loading-lg w-1/4 ml-1/4 ml-[37%]">
+          <span className="w-1/4 ml-1/4 ml-[37%]">
             No apartments found. Please try different search criteria.
           </span>
         ) : (
@@ -83,67 +82,67 @@ export function ApartmentSection() {
           >
             <CarouselContent>
               {apartments.map((apartment) => (
-                  <CarouselItem
-                    key={apartment._id}
-                    className="md:basis-1/2 lg:basis-1/3"
-                  >
-                    <div className="p-1">
-                      <Link href={`/apartments/${apartment._id}`}>
-                        <Card>
-                          <CardContent className="flex flex-col items-center p-6">
-                            <div className="relative w-full h-48 mb-4">
+                <CarouselItem
+                  key={apartment._id}
+                  className="md:basis-1/2 lg:basis-1/3"
+                >
+                  <div className="p-1">
+                    <Link href={`/apartments/${apartment._id}`}>
+                      <Card>
+                        <CardContent className="flex flex-col items-center p-6">
+                          <div className="relative w-full h-48 mb-4">
+                            <img
+                              src={`data:image/jpeg;base64,${Buffer.from(
+                                apartment.mainImage
+                              ).toString("base64")}`}
+                              width="280px"
+                              alt={apartment.name}
+                              className="rounded-md object-cover"
+                            />
+                          </div>
+                        </CardContent>
+                        <br />
+                        <CardHeader>
+                          <CardTitle>{apartment.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-2xl font-bold">
+                            ${apartment.price}/night
+                          </p>
+                          <span className="flex items-center space-x-2">
+                            {apartment.wifi && (
                               <img
-                                src={`data:image/jpeg;base64,${Buffer.from(
-                                  apartment.mainImage
-                                ).toString("base64")}`}
-                                width="280px"
-                                alt={apartment.name}
-                                className="rounded-md object-cover"
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                alt="wifi-logo"
                               />
-                            </div>
-                          </CardContent>
-                          <br />
-                          <CardHeader>
-                            <CardTitle>{apartment.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-2xl font-bold">
-                              ${apartment.price}/night
-                            </p>
-                            <span className="flex items-center space-x-2">
-                              {apartment.wifi && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                                  alt="wifi-logo"
-                                />
-                              )}
-                              {apartment.parking && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/fluency/28/parking.png"
-                                  alt="parking"
-                                />
-                              )}
-                              {apartment.piscine && (
-                                <img
-                                  width="28"
-                                  height="28"
-                                  src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                                  alt="outdoor-swimming-pool"
-                                />
-                              )}
-                            </span>
-                          </CardContent>
-                          <CardFooter>
-                            <Button className="w-full">Book Now</Button>
-                          </CardFooter>
-                        </Card>
-                      </Link>
-                    </div>
-                  </CarouselItem>
+                            )}
+                            {apartment.parking && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/28/parking.png"
+                                alt="parking"
+                              />
+                            )}
+                            {apartment.piscine && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                alt="outdoor-swimming-pool"
+                              />
+                            )}
+                          </span>
+                        </CardContent>
+                        <CardFooter>
+                          <Button className="w-full">Book Now</Button>
+                        </CardFooter>
+                      </Card>
+                    </Link>
+                  </div>
+                </CarouselItem>
               ))}
             </CarouselContent>
             <CarouselPrevious />

@@ -45,9 +45,7 @@ export function CarSection() {
       else {
         const data = await response.json();
         const validItems = data.rentals.filter(
-          (car) =>
-            car.disposability === false
-            && car.isValid === true
+          (car) => car.disposability === true && car.isValidated === true
         );
         const Data = validItems.slice(0, 8);
         setCars(Array.isArray(Data) ? Data : []);
