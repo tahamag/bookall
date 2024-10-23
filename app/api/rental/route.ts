@@ -113,17 +113,17 @@ export async function GET(req: NextApiRequest) {
 
         await connect();
 
-        if (idClient != null) {
+        if (idClient != null)
             rentals = await Rental.find({ idClient: new ObjectId(idClient) });
-        } else if (rentalId != null) {
+        else if (rentalId != null)
             rentals = await Rental.findOne({ _id: new ObjectId(rentalId) });
-        } else {
-            rentals = await Rental.find();
-        }
-        if( rentalType != null && rentalId != null){
+        else if(rentalType!=null)
+            rentals = await Rental.find({rentalType:  rentalType });
+        else if( rentalType != null && rentalId != null)
             rentals = await Rental.find({rentalType:  rentalType , disposability : true ,_id: { $ne: new ObjectId(rentalId) }}).limit(8);
-        
-        console.log(rentals)}
+        else
+            rentals = await Rental.find();
+
         return NextResponse.json(
             { message: "Rental fetched successfully", rentals: rentals },
             { status: 200 }

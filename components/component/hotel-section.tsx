@@ -50,7 +50,12 @@ export function HotelSection() {
       if (!response.ok) throw new Error("Failed to fetch hotels");
       else {
         const data = await response.json();
-        const Data = data.rentals.slice(0, 8);
+        const validItems = data.rentals.filter(
+          (hotel) =>
+            hotel.disposability === false
+            && hotel.isValid === true
+        );
+        const Data = validItems.slice(0, 8);
         setHotels(Array.isArray(Data) ? Data : []);
       }
     } catch (err) {

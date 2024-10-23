@@ -70,6 +70,10 @@ const rentalSchema = new Schema(
         rentalType : {
             type : String,
             required : true
+        },
+        isValid: {
+            type: Boolean,
+            default : false
         }
     },
     {timestamps : true}

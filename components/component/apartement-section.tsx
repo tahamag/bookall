@@ -48,7 +48,12 @@ export function ApartmentSection() {
       if (!response.ok) throw new Error("Failed to fetch apartments");
       else {
         const data = await response.json();
-        const Data = data.rentals.slice(0, 8);
+        const validItems = data.rentals.filter(
+          (Apartment) =>
+            Apartment.disposability === false
+            && Apartment.isValid === true
+        );
+        const Data = validItems.slice(0, 8);
         setApartment(Array.isArray(Data) ? Data : []);
       }
     } catch (err) {

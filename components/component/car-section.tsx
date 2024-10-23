@@ -44,8 +44,14 @@ export function CarSection() {
       if (!response.ok) throw new Error("Failed to fetch cars");
       else {
         const data = await response.json();
-        const Data = data.rentals.slice(0, 8);
+        const validItems = data.rentals.filter(
+          (car) =>
+            car.disposability === false
+            && car.isValid === true
+        );
+        const Data = validItems.slice(0, 8);
         setCars(Array.isArray(Data) ? Data : []);
+        console.log(cars.length);
       }
     } catch (err) {
       console.log("Failed to fetch rentals");
@@ -60,7 +66,7 @@ export function CarSection() {
         {loading ? (
           <span className="loading loading-ring loading-lg w-1/4 ml-1/4 ml-[37%]"></span>
         ) : !Array.isArray(cars) || cars.length === 0 ? (
-          <span className="loading loading-ring loading-lg w-1/4 ml-1/4 ml-[37%]">
+          <span className=" w-1/4 ml-1/4 ml-[37%]">
             No cars found. Please try different search criteria.
           </span>
         ) : (
@@ -97,13 +103,15 @@ export function CarSection() {
                           <CardTitle>{car.name}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-2xl font-bold">${car.price}/night</p>
+                          <p className="text-2xl font-bold">
+                            ${car.price}/night
+                          </p>
                           <span className="flex items-center space-x-2">
                             {car.automatique ? (
                               <img
                                 width="28"
                                 height="28"
-                                src="https://img.icons8.com/pastel-glyph/64/gearbox.png"
+                                src="https://img.icons8.com/pulsar-gradient/48/gearbox.png"
                                 alt="gearbox"
                               />
                             ) : (
