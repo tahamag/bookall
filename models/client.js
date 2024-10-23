@@ -34,9 +34,6 @@ const ClientSchema = new Schema(
     },
     adress: {
       type: String,
-      required: function () {
-        return this.role !== "admin";
-      },
     },
     password: {
       type: String,
@@ -48,9 +45,6 @@ const ClientSchema = new Schema(
     },
     rental: {
       type: String,
-      required: function () {
-        return this.role !== "admin";
-      },
     },
     isValidated: {
       type: Boolean,

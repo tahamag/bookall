@@ -36,13 +36,14 @@ const dashboard = () => {
         setIdCLient(session.user.id);
         fetchRentals(session.user.id);
       }
-    } else if (sessionStatus === "unauthenticated")
-      router.replace("/Locateur/Login");
+    } else if (sessionStatus === "unauthenticated") {
+    }
+    router.replace("/Login");
   }, [sessionStatus]);
 
-  const fetchRentals = async (idClient:string) => {
+  const fetchRentals = async (idClient: string) => {
     try {
-      const response = await fetch(`/api/rental?idClient=${idClient}`)
+      const response = await fetch(`/api/rental?idClient=${idClient}`);
       if (!response.ok) throw new Error("Failed to fetch rentals");
       else {
         const data = await response.json();
@@ -58,7 +59,7 @@ const dashboard = () => {
 
   const handleUpdate = async (rentalId: string) => {
     try {
-     /* const response = await fetch("/api/rentals", {
+      /* const response = await fetch("/api/rentals", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(rental),

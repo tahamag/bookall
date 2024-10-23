@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import {
@@ -16,14 +17,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format, differenceInDays, addDays } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, differenceInDays } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
 
 type Rental = {
   _id: string;
@@ -58,9 +54,6 @@ const HotelDetails = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [nights, setNights] = useState(0);
-  const router = useRouter();
-  const [idCLient, setIdCLient] = useState();
-  const { data: session, status: sessionStatus } = useSession();
 
   useEffect(() => {
     fetchRental(id as string);
@@ -147,40 +140,25 @@ const HotelDetails = () => {
   };
 
   const handleAddToCart = () => {
-    if (sessionStatus === "authenticated") {
-      if (session?.user?.id && session?.user?.role === "locataire") {
-        setIdCLient(session.user.id);
-        if (!rental || !startDate || !endDate) {
-          alert("Please select start and end dates for your reservation.");
-          return;
-        }
-        const cartItem = {
-          clientId: session.user.id,
-          rentalId: rental._id,
-          name: rental.name,
-          price: rental.price,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-          nights: nights,
-          totalPrice: rental.price * nights,
-        };
-
-        // Here you would typically dispatch an action to add the item to the cart
-        // For now, we'll just log it to the console
-        console.log("Adding to cart:", cartItem);
-        alert(
-          `Added ${rental.name} to cart for ${nights} nights. Total: $${cartItem.totalPrice}`
-        );
-      } else {
-        localStorage.setItem("redirectPath", router.asPath);
-        // Redirect to login page
-        router.push("/login");
-      }
-    } else if (sessionStatus === "unauthenticated") {
-      localStorage.setItem("redirectPath", router.asPath);
-      // Redirect to login page
-      router.push("/login");
+    if (!rental || !startDate || !endDate) {
+      alert("Please select start and end dates for your reservation.");
+      return;
     }
+
+    const cartItem = {
+      rentalId: rental._id,
+      name: rental.name,
+      price: rental.price,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      nights: nights,
+      totalPrice: rental.price * nights
+    };
+
+    // Here you would typically dispatch an action to add the item to the cart
+    // For now, we'll just log it to the console
+    console.log("Adding to cart:", cartItem);
+    alert(`Added ${rental.name} to cart for ${nights} nights. Total: $${cartItem.totalPrice}`);
   };
 
   return (
@@ -252,11 +230,7 @@ const HotelDetails = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {startDate ? (
-                            format(startDate, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
+                          {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -264,9 +238,6 @@ const HotelDetails = () => {
                           mode="single"
                           selected={startDate}
                           onSelect={setStartDate}
-                          disabled={(date) =>
-                            date < new Date() || date < addDays(new Date(), 1)
-                          }
                           initialFocus
                         />
                       </PopoverContent>
@@ -284,11 +255,7 @@ const HotelDetails = () => {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {endDate ? (
-                            format(endDate, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
+                          {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -296,7 +263,6 @@ const HotelDetails = () => {
                           mode="single"
                           selected={endDate}
                           onSelect={setEndDate}
-                          disabled={(date) => date <= (startDate || new Date())}
                           initialFocus
                         />
                       </PopoverContent>
@@ -322,79 +288,74 @@ const HotelDetails = () => {
           <h2 className="text-2xl font-bold mb-6">Similar Hotels</h2>
           <div className="relative">
             <div className="overflow-x-auto pb-4">
-              {IsLoadingSimilar ? (
-                <span className="loading loading-ring loading-lg w-1/4 ml-1/4"></span>
-              ) : !Array.isArray(rentalSimilar) ||
-                rentalSimilar.length === 0 ? (
-                <span className="loading loading-ring loading-lg w-1/4 ml-1/4">
-                  No hotels found. Please try different search criteria.
-                </span>
-              ) : (
+            {IsLoadingSimilar ? (
+              <span className="loading loading-ring loading-lg w-1/4 ml-1/4"></span>
+            ) : !Array.isArray(rentalSimilar) || rentalSimilar.length === 0 ? (
+              <span className="loading loading-ring loading-lg w-1/4 ml-1/4">
+                No hotels found. Please try different search criteria.
+              </span>
+            ) : (
                 <div className="flex gap-6">
-                  {rentalSimilar.map((rental) => (
-                    <Link href={`/hotels/${rental._id}`} key={rental._id}>
-                      <Card className="w-64 flex-shrink-0">
-                        <img
-                          src={`data:image/jpeg;base64,${Buffer.from(
-                            rental.mainImage
-                          ).toString("base64")}`}
-                          alt={rental.name}
-                          className="w-full h-40 object-cover rounded-t-lg"
-                        />
-                        <CardHeader>
-                          <CardTitle className="text-lg">
-                            {rental.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="font-semibold">
-                            ${rental.price} / night
-                          </p>
-                          <span className="flex items-center space-x-2">
-                            {rental.wifi && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                                alt="wifi-logo"
-                              />
-                            )}
-                            {rental.parking && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/fluency/28/parking.png"
-                                alt="parking"
-                              />
-                            )}
-                            {rental.piscine && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                                alt="outdoor-swimming-pool"
-                              />
-                            )}
-                            {rental.restoration && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/3d-fluency/94/restaurant.png"
-                                alt="restaurant"
-                              />
-                            )}
-                          </span>
-                        </CardContent>
-                        <CardFooter>
-                          <Button variant="outline" className="w-full">
-                            View Details
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    </Link>
-                  ))}
+                    {rentalSimilar.map((rental) => (
+                        <Link href={`/hotels/${rental._id}`} key={rental._id}>
+                            <Card className="w-64 flex-shrink-0">
+                                <img
+                                src={`data:image/jpeg;base64,${Buffer.from(
+                                    rental.mainImage
+                                ).toString("base64")}`}
+                                alt={rental.name}
+                                className="w-full h-40 object-cover rounded-t-lg"
+                                />
+                                <CardHeader>
+                                <CardTitle className="text-lg">{rental.name}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                <p className="font-semibold">${rental.price} / night</p>
+                                <span className="flex items-center space-x-2">
+                                    {rental.wifi && (
+                                        <img
+                                        width="28"
+                                        height="28"
+                                        src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                        alt="wifi-logo"
+                                        />
+                                    )}
+                                    {rental.parking && (
+                                        <img
+                                        width="28"
+                                        height="28"
+                                        src="https://img.icons8.com/fluency/28/parking.png"
+                                        alt="parking"
+                                        />
+                                    )}
+                                    {rental.piscine && (
+                                        <img
+                                        width="28"
+                                        height="28"
+                                        src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                        alt="outdoor-swimming-pool"
+                                        />
+                                    )}
+                                    {rental.restoration && (
+                                        <img
+                                        width="28"
+                                        height="28"
+                                        src="https://img.icons8.com/3d-fluency/94/restaurant.png"
+                                        alt="restaurant"
+                                        />
+                                    )}
+                                </span>
+                                </CardContent>
+                                <CardFooter>
+                                <Button variant="outline" className="w-full">
+                                    View Details
+                                </Button>
+                                </CardFooter>
+                            </Card>
+                        </Link>
+                    ))}
                 </div>
-              )}
+            )}
             </div>
           </div>
         </div>

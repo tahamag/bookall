@@ -38,6 +38,7 @@ type Rental = {
   parking: boolean;
   piscine: boolean;
   restoration: boolean;
+  isValidated: boolean;
 };
 
 const apartments = () => {
@@ -88,6 +89,7 @@ const apartments = () => {
   const applyFilters = () => {
     const filtered = apartments.filter(
       (apartment) =>
+        apartment.isValidated = true &&
         apartment.price >= priceRange[0] &&
         apartment.price <= priceRange[1] &&
         apartment.nbrChamber >= rooms &&

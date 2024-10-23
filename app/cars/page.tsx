@@ -34,6 +34,7 @@ type Rental = {
   mainImage: string;
   rentalType: string;
   automatique: boolean;
+  isValidated: boolean;
 };
 
 const cars = () => {
@@ -81,9 +82,10 @@ const cars = () => {
   const applyFilters = () => {
     const filtered = cars.filter(
       (car) =>
-        car.price >= priceRange[0] &&
-        car.price <= priceRange[1] &&
-        car.automatique == automatique
+        (car.isValidated = true &&
+          car.price >= priceRange[0] &&
+          car.price <= priceRange[1] &&
+          car.automatique == automatique)
     );
     setFilteredcars(filtered);
   };
@@ -278,7 +280,6 @@ const cars = () => {
                             ${Car.price}/night
                           </p>
                           <span className="flex items-center space-x-2">
-
                             {Car.automatique && (
                               <img
                                 width="28"

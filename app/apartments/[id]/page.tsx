@@ -78,10 +78,10 @@ const hotelDetails = () => {
       if (!response.ok) throw new Error("Failed to fetch rental");
       const data = await response.json();
       setRentalSimilar(data.rentals);
-      console.log("similar", data.rentals);
     } catch (err) {
       console.error(err);
     } finally {
+      console.log("similar", rentalSimilar);
       setIsLoadingSimilar(false);
     }
   };
@@ -213,7 +213,7 @@ const hotelDetails = () => {
                 <span className="loading loading-ring loading-lg w-1/4 ml-1/4"></span>
               ) : !Array.isArray(rentalSimilar) ||
                 rentalSimilar.length === 0 ? (
-                <span className="loading loading-ring loading-lg w-1/4 ml-1/4">
+                <span className=" w-1/4 ml-1/4">
                   No Apartment found. Please try different search criteria.
                 </span>
               ) : (

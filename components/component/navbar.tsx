@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Menu, X, ShoppingCart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -17,6 +27,25 @@ const navItems = [
 
 export function Navrbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+  const [user, setUser] = useState({ name: "" });
+
+  useEffect(() => {
+    if (sessionStatus === "authenticated" && session?.user) {
+      setUser({ name: session.user.name || "" });
+    }
+  }, [sessionStatus, session]);
+
+  const handleLogin = () => {
+    localStorage.setItem("redirectPath", router.asPath);
+    router.push("/auth");
+  };
+
+  const handleLogout = () => {
+    // Implement your logout logic here
+    router.push("/");
+  };
 
   return (
     <nav className="bg-white shadow-md">
@@ -42,12 +71,50 @@ export function Navrbar() {
             ))}
           </div>
 
-          {/* Login/Register Buttons - Hidden on mobile */}
-          <div className="hidden md:flex items-center">
-            <Button variant="outline" className="mr-2">
-              Login
-            </Button>
-            <Button>Register</Button>
+          {/* Auth Buttons or User Menu - Hidden on mobile */}
+          <div className="hidden md:flex items-center space-x-4">
+            {sessionStatus === "authenticated" ? (
+              <>
+                <Link href="/cart">
+                  <Button variant="ghost" size="icon">
+                    <ShoppingCart className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex items-center space-x-2"
+                    >
+                      <User className="h-5 w-5" />
+                      <span>{user.name}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => router.push("/profile")}>
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => router.push("/orders")}>
+                      Orders
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={handleLogout}>
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={handleLogin}>
+                  Login
+                </Button>
+                <Button onClick={() => router.push("/register")}>
+                  Register
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -82,10 +149,51 @@ export function Navrbar() {
                     </Link>
                   ))}
                   <div className="pt-4 space-y-2">
-                    <Button variant="outline" className="w-full">
-                      Login
-                    </Button>
-                    <Button className="w-full">Register</Button>
+                    {sessionStatus === "authenticated" ? (
+                      <>
+                        <Link href="/cart">
+                          <Button
+                            variant="outline"
+                            className="w-full flex items-center justify-center space-x-2"
+                          >
+                            <ShoppingCart className="h-5 w-5" />
+                            <span>Cart</span>
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            handleLogout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          Log out
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            handleLogin();
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          Login
+                        </Button>
+                        <Button
+                          className="w-full"
+                          onClick={() => {
+                            router.push("/register");
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          Register
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </SheetContent>
