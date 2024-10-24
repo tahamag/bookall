@@ -43,7 +43,7 @@ export async function POST(request: Request) {
                 idClient,
                 rentalType
             });
-        else{
+else{
             const restoration = data.get('restoration');
             newRental = new Rental({
                 name,
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
                 restoration,
                 idClient,
                 rentalType
-            });
+});
         }
     }
 
@@ -121,7 +121,8 @@ export async function GET(req: NextApiRequest) {
             rentals = await Rental.find({rentalType:  rentalType });
         else
             rentals = await Rental.find();
-        if( rentalType != null && rentalId != null){
+
+       if( rentalType != null && rentalId != null){
             rentals = await Rental.find({rentalType:  rentalType, disposability : true, isValidated: true ,_id: { $ne: new ObjectId(rentalId) } }).limit(8);
         }
 
