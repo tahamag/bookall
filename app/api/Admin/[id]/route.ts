@@ -6,30 +6,29 @@ import bcrypt from 'bcryptjs';
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) { 
     try { 
         const { id } = params; 
-        const { 
-            firstName, 
-            lastName, 
-            email, 
-            phoneNumber, 
-            role, 
-            password, 
-            birthday, 
-            identifiant, 
-            adress, 
-            rental 
-        } = await req.json(); 
-        
-        await connect(); 
+        const {
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            role,
+            password,
+            birthday,
+            identifiant,
+            adress,
+            rental
+        } = await req.json();
+        await connect();
 
-        const updateData: any = { 
-            firstName, 
-            lastName, 
-            email, 
-            phoneNumber, 
-            role 
-        }; 
+        const updateData: any = {
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            role
+        };
 
-        if (password) { 
+        if (password) {
             const saltRounds = 10;
             updateData.password = await bcrypt.hash(password, saltRounds);
         } 
@@ -41,22 +40,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             updateData.rental = rental;
         }
 
-        const updatedUser = await Client.findByIdAndUpdate( 
-            id, 
-            updateData, 
-            { new: true, runValidators: true } 
-        ); 
+        const updatedUser = await Client.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        );
 
-        if (!updatedUser) { 
-            return NextResponse.json({ error: `${role} not found.` }, { status: 404 }); 
-        } 
+        if (!updatedUser) {
+            return NextResponse.json({ error: `${role} not found.` }, { status: 404 });
+        }
 
-        const userWithoutPassword = updatedUser.toObject(); 
-        delete userWithoutPassword.password; 
+        const userWithoutPassword = updatedUser.toObject();
+        delete userWithoutPassword.password;
 
         return NextResponse.json({ message: `${role} updated successfully`, user: userWithoutPassword }); 
-    } catch (error) { 
-        console.error('Error updating user:', error); 
+    } catch (error) {
+        console.error('Error updating user:', error);
         return NextResponse.json({ error: `Failed to update ${role}.` }, { status: 500 }); 
     } 
 } 

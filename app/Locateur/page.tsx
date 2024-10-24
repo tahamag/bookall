@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SideBar from "@/components/component/sideBar";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
 type Rental = {
@@ -31,15 +31,18 @@ const dashboard = () => {
   const { data: session, status: sessionStatus } = useSession();
 
   useEffect(() => {
+
     if (sessionStatus === "authenticated") {
-      if (session?.user?.id) {
-        setIdCLient(session.user.id);
-        fetchRentals(session.user.id);
+      const userId = session.user.id;
+      if (userId) {
+          setIdCLient(userId);
+          fetchRentals(userId);
       }
-    } else if (sessionStatus === "unauthenticated") {
-    }
-    router.replace("/Login");
-  }, [sessionStatus]);
+  } else if (sessionStatus === "unauthenticated") {
+      router.replace("/Locateur/Login");
+  }
+  }, []);
+
 
   const fetchRentals = async (idClient: string) => {
     try {
@@ -59,14 +62,6 @@ const dashboard = () => {
 
   const handleUpdate = async (rentalId: string) => {
     try {
-      /* const response = await fetch("/api/rentals", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rental),
-      });
-      if (!response.ok) throw new Error("Failed to update rental");
-      fetchRentals(idCLient);
-      setEditingRental(null);*/
       router.push(`/Locateur/${rentalId}`);
     } catch (err) {
       setError("Failed to update rental");

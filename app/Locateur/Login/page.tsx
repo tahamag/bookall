@@ -18,11 +18,9 @@ export default function Login() {
   const newErrors = {};
 
   useEffect(() => {
-    if (sessionStatus === "authenticated") {
-      const redirectPath = localStorage.getItem("redirectPath") || "/";
-      localStorage.removeItem("redirectPath");
-      router.push(redirectPath);
-    }
+        if (sessionStatus === "authenticated") {
+            router.push("/Locateur");
+        }
   }, [sessionStatus, router]);
 
   function validateForm(email, password) {
@@ -50,13 +48,10 @@ export default function Login() {
           email,
           password,
         });
+        console.log(res);
         if (res?.error) newErrors.login = res.error;
-        else {
-          setErrors("");
-          const redirectPath = localStorage.getItem("redirectPath") || "/";
-          alert(redirectPath)
-          router.push(redirectPath);
-          localStorage.removeItem("redirectPath");
+        if(res?.status === 200) {
+          router.push("/Locateur");
         }
       } catch (error) {
         console.log("Error submitting form:", error);
@@ -135,7 +130,7 @@ export default function Login() {
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?
               <Link
-                href="/Register"
+                href="/Locateur/Register"
                 className="underline text-accent"
                 prefetch={false}
               >

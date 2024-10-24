@@ -1,4 +1,5 @@
 import bookingCart from '@/models/booking_X_cart';
+import Cart from '@/models/cart';
 import connect from '@/utils/db';
 import { ObjectId } from 'mongodb';
 import { NextResponse } from "next/server";
@@ -8,12 +9,12 @@ export async function POST(request: Request) {
 
     await connect();
 
-    const newbookingCart = new bookingCart({ cartId ,bookingId});
+    const newBookingCart = new bookingCart({ cartId ,bookingId});
 
     try {
-        await newbookingCart.save();
+        await newBookingCart.save();
 
-        await bookingCart.updateOne({
+        await Cart.updateOne({
             _id: new ObjectId(cartId) },
             { $set: { isValid: true } }
         );

@@ -131,7 +131,7 @@ export default function RegisterForm() {
         }
         if (res.status === 200) {
           setErrors("");
-          router.push("/login");
+          router.push("/auth");
         }
       } catch (error) {
         console.error("Error submitting form:", error);

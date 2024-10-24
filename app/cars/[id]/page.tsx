@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useParams, useRouter  } from "next/navigation";
+import { ChevronLeft, ChevronRight, CalendarIcon  } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -16,6 +16,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format, differenceInDays, addDays } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+
 
 type Rental = {
   id: string;
@@ -38,22 +48,34 @@ type Rental = {
   rentalType: "Hotel" | "Apartment" | "Car";
 };
 
-const hotelDetails = () => {
+const carDetails = () => {
   const { id } = useParams();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [nights, setNights] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [IsLoadingImg, setIsLoadingImg] = useState(true);
   const [IsLoadingSimilar, setIsLoadingSimilar] = useState(true);
   const [rental, setRental] = useState<Rental | null>(null);
   const [rentalSimilar, setRentalSimilar] = useState<Rental | null>(null);
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const [nights, setNights] = useState(1);
+  const router = useRouter();
+  const [idCLient, setIdCLient] = useState();
+  const { data: session, status: sessionStatus } = useSession();
 
   useEffect(() => {
     fetchRental(id as string);
     fetchAdditionalImages(id as string);
     fetchRentalSimilar("Car", id as string);
   }, [id]);
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      const nightsCount = differenceInDays(endDate, startDate);
+      setNights(nightsCount > 0 ? nightsCount : 0);
+    }
+  }, [startDate, endDate]);
 
   const handlePrevImage = () => {
     setCurrentImageIndex(
@@ -125,6 +147,50 @@ const hotelDetails = () => {
     }
   };
 
+  const handleAddToCart = async() => {
+    if (sessionStatus === "authenticated") {
+      if (session?.user?.id && session?.user?.role === "locataire") {
+        setIdCLient(session.user.id);
+        if (!rental || !startDate || !endDate) {
+          alert("Please select start and end dates for your reservation.");
+          return;
+        }
+        const cartItem = {
+          name: rental.name,
+          rentalType: rental.rentalType,
+          price: rental.price,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          nights: nights,
+          totalPrice: rental.price * nights,
+          city: rental.city,
+          clientId: session.user.id,
+          rentalId: rental._id,
+        };
+        try {
+          console.log("full data ", cartItem);
+          // Send data to API
+          const response = await fetch("/api/cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json",} ,
+              body: JSON.stringify(cartItem),
+          });
+          if (response.status === 200) {
+            alert("Rental added to cart successfully");
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+        }
+      } else {
+        localStorage.setItem("redirectPath", router.asPath);
+        router.push("/auth");
+      }
+    } else if (sessionStatus === "unauthenticated") {
+      localStorage.setItem("redirectPath", router.asPath);
+      router.push("/auth");
+    }
+  };
+
   return (
     <div>
       <Navrbar></Navrbar>
@@ -180,21 +246,76 @@ const hotelDetails = () => {
                 <strong>Number of Rooms:</strong> {rental?.nbrChamber}
               </p>
 
-              <div className="flex items-end gap-4 mt-8">
-                <div>
-                  <Label htmlFor="nights">Number of Nights</Label>
-                  <Input
-                    id="nights"
-                    type="number"
-                    min={1}
-                    value={nights}
-                    onChange={(e) =>
-                      setNights(Math.max(1, parseInt(e.target.value) || 1))
-                    }
-                    className="w-24"
-                  />
+              <div className="flex flex-col gap-4 mt-8">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <Label>Check-in Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !startDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {startDate ? (
+                            format(startDate, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={startDate}
+                          onSelect={setStartDate}
+                          disabled={(date) =>
+                            date < new Date() || date < addDays(new Date(), 1)
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="flex-1">
+                    <Label>Check-out Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !endDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {endDate ? (
+                            format(endDate, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={endDate}
+                          onSelect={setEndDate}
+                          disabled={(date) => date <= (startDate || new Date())}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
-                <Button size="lg">
+                <div>
+                  <p>Number of Nights: {nights}</p>
+                  <p>Total Price: ${rental.price * nights}</p>
+                </div>
+                <Button size="lg" onClick={handleAddToCart}>
                   Add to Cart - ${rental?.price * nights}
                 </Button>
               </div>
@@ -213,7 +334,7 @@ const hotelDetails = () => {
                 <span className="loading loading-ring loading-lg w-1/4 ml-1/4"></span>
               ) : !Array.isArray(rentalSimilar) ||
                 rentalSimilar.length === 0 ? (
-                <span className="loading loading-ring loading-lg w-1/4 ml-1/4">
+                <span className=" w-1/4 ml-1/4">
                   No Car found. Please try different search criteria.
                 </span>
               ) : (
@@ -282,4 +403,4 @@ const hotelDetails = () => {
   );
 };
 
-export default hotelDetails;
+export default carDetails;

@@ -13,8 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -43,7 +43,7 @@ export function Navrbar() {
   };
 
   const handleLogout = () => {
-    // Implement your logout logic here
+    signOut()
     router.push("/");
   };
 

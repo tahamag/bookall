@@ -43,11 +43,11 @@ const sideBar = () => {
         </div>
         <nav className="space-y-2 px-4">
           <Link
-            href="/"
+            href="/Locateur"
             className="flex items-center space-x-2 rounded-lg px-2 py-1.5 hover:bg-gray-700"
           >
             <Home className="h-5 w-5" />
-            <span>Home</span>
+            <span>Add rental</span>
           </Link>
           <Link
             href="/Locateur/Add"
@@ -70,7 +70,7 @@ const sideBar = () => {
             <span>Rental</span>
           </Link>
           <Link
-            href="/settings"
+            href="/Locateur/settings"
             className="flex items-center space-x-2 rounded-lg px-2 py-1.5 hover:bg-gray-700"
           >
             <Settings className="h-5 w-5" />

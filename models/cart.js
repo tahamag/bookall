@@ -34,9 +34,9 @@ const cartSchema = new mongoose.Schema(
     city: {
         type: String,
     },
-    isValid: {
+    c: {
         type: Boolean,
-        defaulte : false
+        default : false
     },
     clientId: {
         type: String,

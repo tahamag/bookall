@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { name, rentalType, price, startDate, endDate, nights, totalPrice, city, clientId , rentalId } = await request.json();
     await connect();
 
-    const newCart = new cart({name, rentalType, price, startDate, endDate, nights, totalPrice, city, clientId , rentalId});
+    const newCart = new cart({name, rentalType, price, startDate, endDate, nights, totalPrice, city, isValid : false ,clientId , rentalId});
 
     try {
         await newCart.save();

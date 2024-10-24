@@ -57,7 +57,7 @@ const HotelDetails = () => {
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
-  const [nights, setNights] = useState(0);
+  const [nights, setNights] = useState(1);
   const router = useRouter();
   const [idCLient, setIdCLient] = useState();
   const { data: session, status: sessionStatus } = useSession();
@@ -180,21 +180,12 @@ const HotelDetails = () => {
         } catch (error) {
           console.error("Error submitting form:", error);
         }
-
-        // Here you would typically dispatch an action to add the item to the cart
-        // For now, we'll just log it to the console
-        console.log("Adding to cart:", cartItem);
-        alert(
-          `Added ${rental.name} to cart for ${nights} nights. Total: $${cartItem.totalPrice}`
-        );
       } else {
         localStorage.setItem("redirectPath", router.asPath);
-        // Redirect to login page
         router.push("/auth");
       }
     } else if (sessionStatus === "unauthenticated") {
       localStorage.setItem("redirectPath", router.asPath);
-      // Redirect to login page
       router.push("/auth");
     }
   };
@@ -332,7 +323,6 @@ const HotelDetails = () => {
             <span className="loading loading-bars loading-lg w-1/4 ml-1/4 ml-[10%]"></span>
           )}
         </div>
-
         {/* Similar Hotels Slider */}
         <div className="mt-16">
           <h2 className="text-2xl font-bold mb-6">Similar Hotels</h2>

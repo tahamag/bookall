@@ -48,24 +48,22 @@ const cart = () => {
   const { data: session, status: sessionStatus } = useSession();
   const [idCLient, setIdCLient] = useState();
   const [reference, setReference] = useState();
-  const [cartItems, setCartItems] = useState<>([]);
+  const [cartItems, setCartItems] = useState([]);
   const [notification, setNotification] = useState<Notification | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (sessionStatus === "authenticated") {
-      if (session?.user?.id && session?.user?.role === "locataire") {
+      if (session?.user?.id) {
         setIdCLient(session?.user?.id);
         fetchcart();
-      } else {
-        localStorage.setItem("redirectPath", router.asPath);
-        router.push("/auth");
       }
     } else if (sessionStatus === "unauthenticated") {
       localStorage.setItem("redirectPath", router.asPath);
-      router.push("/auth");
+      router.push(localStorage);
     }
   }, [session]);
+
   const fetchcart = async () => {
     try {
       setLoading(true);
@@ -85,7 +83,6 @@ const cart = () => {
   function generateReferenceCode() {
     const set = "123456789SBND";
 
-    // Shuffle the characters in the set
     const shuffledSet = set
     .split("")
     .sort(() => Math.random() - 0.5)
@@ -118,7 +115,7 @@ const cart = () => {
                 title: "Reservation Successful",
                 message: `Your reservations have been confirmed. `,
             });
-            //setCartItems([]);
+            setCartItems([]);
         }
     }
   }
