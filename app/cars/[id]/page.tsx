@@ -219,7 +219,7 @@ const hotelDetails = () => {
               ) : (
                 <div className="flex gap-6">
                   {rentalSimilar.map((rental) => (
-                    <Link href={`/cars/${rental._id}`}>
+                    <Link href={`/ars/${rental._id}`}>
                       <Card key={rental._id} className="w-64 flex-shrink-0">
                         <img
                           src={`data:image/jpeg;base64,${Buffer.from(

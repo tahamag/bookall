@@ -146,7 +146,7 @@ const HotelDetails = () => {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async() => {
     if (sessionStatus === "authenticated") {
       if (session?.user?.id && session?.user?.role === "locataire") {
         setIdCLient(session.user.id);
@@ -155,15 +155,31 @@ const HotelDetails = () => {
           return;
         }
         const cartItem = {
-          clientId: session.user.id,
-          rentalId: rental._id,
           name: rental.name,
+          rentalType: rental.rentalType,
           price: rental.price,
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
           nights: nights,
           totalPrice: rental.price * nights,
+          city: rental.city,
+          clientId: session.user.id,
+          rentalId: rental._id,
         };
+        try {
+          console.log("full data ", cartItem);
+          // Send data to API
+          const response = await fetch("/api/cart", {
+              method: "POST",
+              headers: { "Content-Type": "application/json",} ,
+              body: JSON.stringify(cartItem),
+          });
+          if (response.status === 200) {
+            alert("Rental added to cart successfully");
+          }
+        } catch (error) {
+          console.error("Error submitting form:", error);
+        }
 
         // Here you would typically dispatch an action to add the item to the cart
         // For now, we'll just log it to the console
@@ -174,12 +190,12 @@ const HotelDetails = () => {
       } else {
         localStorage.setItem("redirectPath", router.asPath);
         // Redirect to login page
-        router.push("/login");
+        router.push("/auth");
       }
     } else if (sessionStatus === "unauthenticated") {
       localStorage.setItem("redirectPath", router.asPath);
       // Redirect to login page
-      router.push("/login");
+      router.push("/auth");
     }
   };
 
