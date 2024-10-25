@@ -34,7 +34,7 @@ const cartSchema = new mongoose.Schema(
     city: {
         type: String,
     },
-    c: {
+    isValid: {
         type: Boolean,
         default : false
     },

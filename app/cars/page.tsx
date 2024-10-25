@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import car from "@/public/sliders/cars1.jpg";
 
 type Rental = {
   _id: string;
@@ -82,7 +83,8 @@ const cars = () => {
   const applyFilters = () => {
     const filtered = cars.filter(
       (car) =>
-        (car.isValidated = true &&
+        (car.isValidated =
+          true &&
           car.price >= priceRange[0] &&
           car.price <= priceRange[1] &&
           car.automatique == automatique)
@@ -107,8 +109,7 @@ const cars = () => {
         <div
           className="relative h-[50vh] bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp')",
+            backgroundImage: `url(${car.src})`,
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center ">
@@ -116,7 +117,7 @@ const cars = () => {
               Discover Your Perfect Stay
             </h1>
             <p className="text-xl md:text-2xl font-bold ">
-              Luxury accommodations for unforgettable experiences
+              Luxury cars for unforgettable experiences
             </p>
           </div>
         </div>

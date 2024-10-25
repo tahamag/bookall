@@ -14,8 +14,8 @@ export async function POST(request: Request) {
     try {
         await newBookingCart.save();
 
-        await Cart.updateOne({
-            _id: new ObjectId(cartId) },
+        await Cart.updateMany(
+            { _id: new ObjectId(cartId) },
             { $set: { isValid: true } }
         );
 

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
+import logo from "@/public/logo.png";
+import Image from "next/image";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -43,18 +45,21 @@ export function Navrbar() {
   };
 
   const handleLogout = () => {
-    signOut()
+    signOut();
     router.push("/");
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-gray-800">Logo</span>
+              <span className="text-xl font-bold text-gray-800">
+                {" "}
+                <Image src={logo} alt="BookAll Logo" width={58} />
+              </span>
             </Link>
           </div>
 

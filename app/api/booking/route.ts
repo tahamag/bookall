@@ -2,6 +2,7 @@ import Booking from '@/models/booking';
 import BookingCart from '@/models/booking_X_cart';
 import Cart from '@/models/cart';
 import connect from '@/utils/db';
+import { NextApiRequest } from 'next';
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -9,7 +10,7 @@ export async function POST(request: Request) {
 
     await connect();
 
-    const newBooking = new booking({ reference, price,clientId});
+    const newBooking = new Booking({ reference, price,clientId});
 
     try {
         const savedBooking = await newBooking.save();

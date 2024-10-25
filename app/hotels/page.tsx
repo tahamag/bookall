@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import hotel from "@/public/sliders/hotel1.jpg";
 
 type Rental = {
   _id: string;
@@ -123,8 +124,7 @@ const hotels = () => {
         <div
           className="relative h-[50vh] bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp')",
+            backgroundImage: `url(${hotel.src})`,
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center ">

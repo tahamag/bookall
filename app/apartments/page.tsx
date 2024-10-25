@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import appar3 from "@/public/sliders/appar2.jpg";
 
 type Rental = {
   _id: string;
@@ -83,23 +84,24 @@ const apartments = () => {
     } catch (err) {
       console.log("Failed to fetch rentals");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
   const applyFilters = () => {
     const filtered = apartments.filter(
       (apartment) =>
-        apartment.isValidated = true &&
-        apartment.price >= priceRange[0] &&
-        apartment.price <= priceRange[1] &&
-        apartment.nbrChamber >= rooms &&
-        apartment.wifi == wifi &&
-        apartment.parking == parking &&
-        apartment.piscine == pool
+        (apartment.isValidated =
+          true &&
+          apartment.price >= priceRange[0] &&
+          apartment.price <= priceRange[1] &&
+          apartment.nbrChamber >= rooms &&
+          apartment.wifi == wifi &&
+          apartment.parking == parking &&
+          apartment.piscine == pool)
     );
     setFilteredApartments(filtered);
-    console.log(apartments)
-    console.log("filtered",filtered)
+    console.log(apartments);
+    console.log("filtered", filtered);
   };
   const handlePriceRangeChange = (value: number[]) => {
     setPriceRange(value);
@@ -121,10 +123,9 @@ const apartments = () => {
       <div className="flex flex-col min-h-screen">
         {/* Hero Section */}
         <div
-          className="relative h-[50vh] bg-cover bg-center"
+          className="relative h-[65vh] bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp')",
+            backgroundImage: `url(${appar3.src})`,
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center ">
@@ -296,66 +297,70 @@ const apartments = () => {
                 No apartments found. Please try different search criteria.
               </span>
             ) : (
-                <motion.div
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-            >
+              >
                 {filteredApartments.map((apartment) => (
-                    <motion.div
-                        key={apartment._id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <Link href={`/apartments/${apartment._id}`}>
-                            <Card className="overflow-hidden">
-                                <img
-                                    src={`data:image/jpeg;base64,${Buffer.from(apartment.mainImage).toString("base64")}`}
-                                    alt={apartment.name}
-                                    className="w-full h-48 object-cover"
-                                />
-                                <CardHeader>
-                                    <CardTitle>{apartment.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-2xl font-bold">${apartment.price}/night</p>
-                                    <span className="flex items-center space-x-2">
-                                        {apartment.wifi && (
-                                            <img
-                                            width="28"
-                                            height="28"
-                                            src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                                            alt="wifi-logo"
-                                            />
-                                        )}
-                                        {apartment.parking && (
-                                            <img
-                                            width="28"
-                                            height="28"
-                                            src="https://img.icons8.com/fluency/28/parking.png"
-                                            alt="parking"
-                                            />
-                                        )}
-                                        {apartment.piscine && (
-                                            <img
-                                            width="28"
-                                            height="28"
-                                            src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                                            alt="outdoor-swimming-pool"
-                                            />
-                                        )}
-                                    </span>
-                                </CardContent>
-                                <CardFooter>
-                                    <Button className="w-full">Check In</Button>
-                                </CardFooter>
-                            </Card>
-                        </Link>
-                    </motion.div>
+                  <motion.div
+                    key={apartment._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Link href={`/apartments/${apartment._id}`}>
+                      <Card className="overflow-hidden">
+                        <img
+                          src={`data:image/jpeg;base64,${Buffer.from(
+                            apartment.mainImage
+                          ).toString("base64")}`}
+                          alt={apartment.name}
+                          className="w-full h-48 object-cover"
+                        />
+                        <CardHeader>
+                          <CardTitle>{apartment.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-2xl font-bold">
+                            ${apartment.price}/night
+                          </p>
+                          <span className="flex items-center space-x-2">
+                            {apartment.wifi && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/48/wifi-logo.png"
+                                alt="wifi-logo"
+                              />
+                            )}
+                            {apartment.parking && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/fluency/28/parking.png"
+                                alt="parking"
+                              />
+                            )}
+                            {apartment.piscine && (
+                              <img
+                                width="28"
+                                height="28"
+                                src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                                alt="outdoor-swimming-pool"
+                              />
+                            )}
+                          </span>
+                        </CardContent>
+                        <CardFooter>
+                          <Button className="w-full">Check In</Button>
+                        </CardFooter>
+                      </Card>
+                    </Link>
+                  </motion.div>
                 ))}
-            </motion.div>
+              </motion.div>
             )}
           </div>
         </div>

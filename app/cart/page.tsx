@@ -84,9 +84,9 @@ const cart = () => {
     const set = "123456789SBND";
 
     const shuffledSet = set
-    .split("")
-    .sort(() => Math.random() - 0.5)
-    .join("");
+      .split("")
+      .sort(() => Math.random() - 0.5)
+      .join("");
 
     const randomChars = shuffledSet.substring(0, 6);
 
@@ -96,56 +96,59 @@ const cart = () => {
 
     return refCode;
   }
-  const insertDetail = async(bookingId : string)=>{
-    for(let i = 0 ; i< cartItems.length ; i++){
-
-        const DATA = {
-            cartId: cartItems[i]._id,
-            bookingId: bookingId,
-        }
-        console.log(DATA)
-        const res = await fetch(`/api/Booking_Cart`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json"},
-            body: JSON.stringify(DATA),
+  const insertDetail = async (bookingId: string) => {
+    console.log(bookingId)
+    for (let i = 0; i < cartItems.length; i++) {
+      const DATA = {
+        cartId: cartItems[i]._id,
+        bookingId: bookingId,
+      };
+      console.log(DATA);
+      const res = await fetch(`/api/Booking_Cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(DATA),
+      });
+      if (res.status === 200) {
+        setNotification({
+          type: "success",
+          title: "Reservation Successful",
+          message: `Your reservations have been confirmed. `,
         });
-        if (res.status === 200){
-            setNotification({
-                type: "success",
-                title: "Reservation Successful",
-                message: `Your reservations have been confirmed. `,
-            });
-            setCartItems([]);
-        }
+        setCartItems([]);
+      }
     }
-  }
+  };
   const handleReservation = async () => {
     try {
-        setLoading(true);
-        const data = {
-            reference: generateReferenceCode(),
-            price: totalAmount,
-            clientId : idCLient
-        };
+      setLoading(true);
+      console.log(idCLient);
+      const data = {
+        reference: generateReferenceCode(),
+        price: totalAmount,
+        clientId: idCLient,
+      };
 
-        const response = await fetch(`/api/booking`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json",} ,
-            body: JSON.stringify(data),
-        });
+      const response = await fetch(`/api/booking`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-        if (response.status === 200) {
-            const data = await response.json();
-            setReference(data.bookingId)
-            insertDetail(data.bookingId)
-        }
+      if (response.status === 200) {
+        const data = await response.json();
+        console.log(data.bookingId);
+        setReference(data.bookingId);
+        insertDetail(data.bookingId);
+      }
     } catch (error) {
-        console.error("Reservation failed:", error);
-        setNotification({
-            type: "error",
-            title: "Reservation Failed",
-            message: "There was an error processing your reservation. Please try again.",
-        });
+      console.error("Reservation failed:", error);
+      setNotification({
+        type: "error",
+        title: "Reservation Failed",
+        message:
+          "There was an error processing your reservation. Please try again.",
+      });
     } finally {
       setLoading(false);
     }

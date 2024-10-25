@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navrbar } from "@/components/component/navbar";
 import { motion } from "framer-motion";
-import { useParams, useRouter  } from "next/navigation";
-import { ChevronLeft, ChevronRight, CalendarIcon  } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -25,7 +25,6 @@ import {
 import { format, differenceInDays, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-
 
 type Rental = {
   id: string;
@@ -147,7 +146,7 @@ const carDetails = () => {
     }
   };
 
-  const handleAddToCart = async() => {
+  const handleAddToCart = async () => {
     if (sessionStatus === "authenticated") {
       if (session?.user?.id && session?.user?.role === "locataire") {
         setIdCLient(session.user.id);
@@ -171,9 +170,9 @@ const carDetails = () => {
           console.log("full data ", cartItem);
           // Send data to API
           const response = await fetch("/api/cart", {
-              method: "POST",
-              headers: { "Content-Type": "application/json",} ,
-              body: JSON.stringify(cartItem),
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cartItem),
           });
           if (response.status === 200) {
             alert("Rental added to cart successfully");
@@ -245,7 +244,14 @@ const carDetails = () => {
               <p className="mb-4">
                 <strong>Number of Rooms:</strong> {rental?.nbrChamber}
               </p>
-
+              {rental.automatique && (
+                <img
+                  width="28"
+                  height="28"
+                  src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                  alt="outdoor-swimming-pool"
+                />
+              )}
               <div className="flex flex-col gap-4 mt-8">
                 <div className="flex gap-4">
                   <div className="flex-1">
@@ -340,7 +346,7 @@ const carDetails = () => {
               ) : (
                 <div className="flex gap-6">
                   {rentalSimilar.map((rental) => (
-                    <Link href={`/ars/${rental._id}`}>
+                    <Link href={`/cars/${rental._id}`}>
                       <Card key={rental._id} className="w-64 flex-shrink-0">
                         <img
                           src={`data:image/jpeg;base64,${Buffer.from(
@@ -358,32 +364,14 @@ const carDetails = () => {
                           <p className="font-semibold">
                             ${rental.price} / night
                           </p>
-                          <span className="flex items-center space-x-2">
-                            {rental.wifi && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/fluency/48/wifi-logo.png"
-                                alt="wifi-logo"
-                              />
-                            )}
-                            {rental.parking && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/fluency/28/parking.png"
-                                alt="parking"
-                              />
-                            )}
-                            {rental.piscine && (
-                              <img
-                                width="28"
-                                height="28"
-                                src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
-                                alt="outdoor-swimming-pool"
-                              />
-                            )}
-                          </span>
+                          {rental.automatique && (
+                            <img
+                              width="28"
+                              height="28"
+                              src="https://img.icons8.com/color/48/outdoor-swimming-pool.png"
+                              alt="outdoor-swimming-pool"
+                            />
+                          )}
                         </CardContent>
                         <CardFooter>
                           <Button variant="outline" className="w-full">
