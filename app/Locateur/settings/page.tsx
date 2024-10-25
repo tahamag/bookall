@@ -38,64 +38,62 @@ export default function EditLocateurPage() {
     rental: ''
   })
   const [loading, setLoading] = useState(true)
-  const params = useParams<{ id: string }>()
-  const id = params.id
   const router = useRouter()
   const { toast } = useToast()
   const { data: session, status: sessionStatus } = useSession();
   const [idCLient, setIdCLient] = useState();
 
-useEffect(() => {
-  console.log(sessionStatus)
-  if (sessionStatus === "authenticated") {
-    const userId = session.user.id;
-    if (userId) {
-        getUserData(userId)
-        setIdCLient(userId)
-    }
-} else if (sessionStatus === "unauthenticated") {
-    router.replace("/Locateur/Login");
-}
-}, [])
-const getUserData = async (id : string) => {
-  console.log('User ID:', id)
-  if (!id) {
-    console.error('User ID is missing')
-    return
+  useEffect(() => {
+    console.log(sessionStatus)
+    if (sessionStatus === "authenticated") {
+      const userId = session.user.id;
+      if (userId) {
+          getUserData(userId)
+          setIdCLient(userId)
+      }
+  } else if (sessionStatus === "unauthenticated") {
+      router.replace("/Locateur/Login");
   }
-  try {
-    const response = await fetch(`/api/Admin/${id}`)
-    if (!response.ok) {
-      throw new Error('Failed to fetch user data')
+  }, [])
+  const getUserData = async (id : string) => {
+    console.log('User ID:', id)
+    if (!id) {
+      console.error('User ID is missing')
+      return
     }
-    const { user } = await response.json()
+    try {
+      const response = await fetch(`/api/Admin/${id}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data')
+      }
+      const { user } = await response.json()
 
-    const isoDateString = user.birthday;
-    const date = new Date(isoDateString);
-    const formattedDate = date.toISOString().split('T')[0];
-    setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      role: user.role,
-      password: '',
-      birthday:formattedDate,
-      identifiant: user.identifiant,
-      adress: user.adress,
-      rental: user.rental
-    })
-  } catch (error) {
-    console.error('Error fetching user data:', error)
-    toast({
-      title: "Error",
-      description: "Unable to load user data.",
-      variant: "destructive",
-    })
-  } finally {
-    setLoading(false)
+      const isoDateString = user.birthday;
+      const date = new Date(isoDateString);
+      const formattedDate = date.toISOString().split('T')[0];
+      setFormData({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        email: user.email,
+        role: user.role,
+        password: '',
+        birthday:formattedDate,
+        identifiant: user.identifiant,
+        adress: user.adress,
+        rental: user.rental
+      })
+    } catch (error) {
+      console.error('Error fetching user data:', error)
+      toast({
+        title: "Error",
+        description: "Unable to load user data.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -106,51 +104,51 @@ const getUserData = async (id : string) => {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault()
-  setLoading(true)
-  try {
-    const dataToSend = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phoneNumber: formData.phoneNumber,
-      role: 'locateur',
-      ...(formData.password && { password: formData.password }),
-      birthday: formData.birthday,
-      identifiant: formData.identifiant,
-      adress: formData.adress,
-      rental: formData.rental
-    };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const dataToSend = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        role: 'locateur',
+        ...(formData.password && { password: formData.password }),
+        birthday: formData.birthday,
+        identifiant: formData.identifiant,
+        adress: formData.adress,
+        rental: formData.rental
+      };
 
-    const response = await fetch(`/api/Admin/${idCLient}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(dataToSend),
-    })
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to update user')
+      const response = await fetch(`/api/Admin/${idCLient}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update user')
+      }
+      const { user } = await response.json()
+      toast({
+        title: "Success",
+        description: `Admin ${user.firstName} ${user.lastName} updated successfully.`
+      })
+      await router.push('/Locateur');
+    } catch (error) {
+      console.error('Error updating user:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred while updating the user.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
-    const { user } = await response.json()
-    toast({
-      title: "Success",
-      description: `Admin ${user.firstName} ${user.lastName} updated successfully.`
-    })
-    await router.push('/Locateur');
-  } catch (error) {
-    console.error('Error updating user:', error)
-    toast({
-      title: "Error",
-      description: error instanceof Error ? error.message : "An error occurred while updating the user.",
-      variant: "destructive",
-    })
-  } finally {
-    setLoading(false)
   }
-}
 
   if (loading) {
     return <div>Loading...</div>

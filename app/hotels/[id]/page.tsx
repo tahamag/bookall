@@ -305,7 +305,7 @@ const HotelDetails = () => {
                           selected={startDate}
                           onSelect={setStartDate}
                           disabled={(date) =>
-                            date < new Date() || date < addDays(new Date(), 1)
+                            date < new Date() || date < addDays(new Date())
                           }
                           initialFocus
                         />
