@@ -35,7 +35,7 @@ const ClientSchema = new Schema(
     adress: {
       type: String,
     },
-    password: {
+       password: {
       type: String,
       required: true,
       },

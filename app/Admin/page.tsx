@@ -39,9 +39,6 @@ export default function AdminDashboard() {
                       <p className="text-sm font-medium text-muted-foreground">Total des utilisateurs</p>
                       <p className="text-2xl font-bold">{users.length}</p>
                     </div>
-                    <div className="rounded-full p-3 bg-primary/10">
-                      <Heart className="h-6 w-6 text-primary" />
-                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">21% de plus que le mois dernier</p>
                 </CardContent>
@@ -53,9 +50,6 @@ export default function AdminDashboard() {
                       <p className="text-sm font-medium text-muted-foreground">Admins</p>
                       <p className="text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</p>
                     </div>
-                    <div className="rounded-full p-3 bg-secondary/10">
-                      <Zap className="h-6 w-6 text-secondary" />
-                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">5% de plus que la semaine dernière</p>
                 </CardContent>
@@ -66,9 +60,6 @@ export default function AdminDashboard() {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Locateurs</p>
                       <p className="text-2xl font-bold">{users.filter(u => u.role === 'locateur').length}</p>
-                    </div>
-                    <div className="rounded-full p-3 bg-green-500/10">
-                      <CheckCircle className="h-6 w-6 text-green-500" />
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">3 nouveaux cette semaine</p>
